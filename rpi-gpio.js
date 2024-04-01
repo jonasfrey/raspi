@@ -5,7 +5,7 @@ var retry        = require('async-retry');
 var debug        = require('debug')('rpi-gpio');
 var Epoll        = require('epoll').Epoll;
 
-var PATH = '/sys/class/gpio';
+var s_path_abs_folder_gpio = '/sys/class/gpio';
 var PINS = {
     v1: {
         // 1: 3.3v
@@ -272,7 +272,7 @@ function Gpio() {
         value = (!!value && value !== '0') ? '1' : '0';
 
         debug('writing pin %d with value %s', pin, value);
-        fs.writeFile(PATH + '/gpio' + pin + '/value', value, cb);
+        fs.writeFile(s_path_abs_folder_gpio + '/gpio' + pin + '/value', value, cb);
     };
 
     /**
@@ -294,7 +294,7 @@ function Gpio() {
             });
         }
 
-        fs.readFile(PATH + '/gpio' + pin + '/value', 'utf-8', function(err, data) {
+        fs.readFile(s_path_abs_folder_gpio + '/gpio' + pin + '/value', 'utf-8', function(err, data) {
             if (err) {
                 return cb(err)
             }
@@ -424,7 +424,7 @@ function Gpio() {
             onChange(channel);
         });
 
-        var fd = fs.openSync(PATH + '/gpio' + pin + '/value', 'r+');
+        var fd = fs.openSync(s_path_abs_folder_gpio + '/gpio' + pin + '/value', 'r+');
         clearInterrupt(fd);
         poller.add(fd, Epoll.EPOLLPRI);
         // Append ready-to-use remove function
@@ -438,7 +438,7 @@ util.inherits(Gpio, EventEmitter);
 function setEdge(pin, edge) {
     debug('set edge %s on pin %d', edge.toUpperCase(), pin);
     return new Promise(function(resolve, reject) {
-        fs.writeFile(PATH + '/gpio' + pin + '/edge', edge, function(err) {
+        fs.writeFile(s_path_abs_folder_gpio + '/gpio' + pin + '/edge', edge, function(err) {
             if (err) {
                 return reject(err);
             }
@@ -450,7 +450,7 @@ function setEdge(pin, edge) {
 function setDirection(pin, direction) {
     debug('set direction %s on pin %d', direction.toUpperCase(), pin);
     return new Promise(function(resolve, reject) {
-        fs.writeFile(PATH + '/gpio' + pin + '/direction', direction, function(err) {
+        fs.writeFile(s_path_abs_folder_gpio + '/gpio' + pin + '/direction', direction, function(err) {
             if (err) {
                 return reject(err);
             }
@@ -462,7 +462,7 @@ function setDirection(pin, direction) {
 function exportPin(pin) {
     debug('export pin %d', pin);
     return new Promise(function(resolve, reject) {
-        fs.writeFile(PATH + '/export', pin, function(err) {
+        fs.writeFile(s_path_abs_folder_gpio + '/export', pin, function(err) {
             if (err) {
                 return reject(err);
             }
@@ -474,7 +474,7 @@ function exportPin(pin) {
 function unexportPin(pin) {
     debug('unexport pin %d', pin);
     return new Promise(function(resolve, reject) {
-        fs.writeFile(PATH + '/unexport', pin, function(err) {
+        fs.writeFile(s_path_abs_folder_gpio + '/unexport', pin, function(err) {
             if (err) {
                 return reject(err);
             }
@@ -485,7 +485,7 @@ function unexportPin(pin) {
 
 function isExported(pin) {
     return new Promise(function(resolve, reject) {
-        fs.exists(PATH + '/gpio' + pin, function(exists) {
+        fs.exists(s_path_abs_folder_gpio + '/gpio' + pin, function(exists) {
             return resolve(exists);
         });
     });

@@ -3,8 +3,23 @@
 // usually its arrays of objects representing stuff
 // objects can be named and then exported
 import {
-    O_raspi_pin
+    O_pin,
+    O_raspi,
 } from "./classes.module.js"
+
+const s_path_abs_folder_gpio = '/sys/class/gpio';
+const s_pin_direction_in   = 'in';
+const s_pin_direction_out  = 'out';
+const s_pin_state_low  = 'low';
+const s_pin_state_high = 'high';
+
+var MODE_RPI = 'mode_rpi';
+var MODE_BCM = 'mode_bcm';
+
+var EDGE_NONE    = 'none';
+var EDGE_RISING  = 'rising';
+var EDGE_FALLING = 'falling';
+var EDGE_BOTH    = 'both';
 
 
 // | P1-01:type   | P1-02:type   |
@@ -23,92 +38,77 @@ import {
 // | 23:GPIO 11   | 24:GPIO 8    |
 // | 25:Ground    | 26:GPIO 7    |
 
-let o_raspi_pin__hans = new O_raspi_pin(
-    'hans', 
-    80,
-);
-var PINS = {
-    v1: {
-        // 1: 3.3v
-        // 2: 5v
-        '3':  0,
-        // 4: 5v
-        '5':  1,
-        // 6: ground
-        '7':  4,
-        '8':  14,
-        // 9: ground
-        '10': 15,
-        '11': 17,
-        '12': 18,
-        '13': 21,
-        // 14: ground
-        '15': 22,
-        '16': 23,
-        // 17: 3.3v
-        '18': 24,
-        '19': 10,
-        // 20: ground
-        '21': 9,
-        '22': 25,
-        '23': 11,
-        '24': 8,
-        // 25: ground
-        '26': 7
-    },
-    v2: {
-        // 1: 3.3v
-        // 2: 5v
-        '3':  2,
-        // 4: 5v
-        '5':  3,
-        // 6: ground
-        '7':  4,
-        '8':  14,
-        // 9: ground
-        '10': 15,
-        '11': 17,
-        '12': 18,
-        '13': 27,
-        // 14: ground
-        '15': 22,
-        '16': 23,
-        // 17: 3.3v
-        '18': 24,
-        '19': 10,
-        // 20: ground
-        '21': 9,
-        '22': 25,
-        '23': 11,
-        '24': 8,
-        // 25: ground
-        '26': 7,
 
-        // Model B+ pins
-        // 27: ID_SD
-        // 28: ID_SC
-        '29': 5,
-        // 30: ground
-        '31': 6,
-        '32': 12,
-        '33': 13,
-        // 34: ground
-        '35': 19,
-        '36': 16,
-        '37': 26,
-        '38': 20,
-        // 39: ground
-        '40': 21
-    }
-};
+let o_raspi__v1 = new O_raspi(
+    'v1', 
+    [
+        new O_pin("3v3 power", 1, null), 
+        new O_pin("5v power", 2, null),
+        new O_pin("GPIO 0 (SDA)", 3, 0),
+        new O_pin("5v power", 4, null),
+        new O_pin("GPIO 1 (SCL)", 5, 1),
+        new O_pin("Ground", 6, null),
+        new O_pin("GPIO 4 (GPCLK0)", 7, 4),
+        new O_pin("GPIO 14 (TXD)", 8, 14),
+        new O_pin("Ground", 9, null),
+        new O_pin("GPIO 15 (RXD)", 10, 15),
+        new O_pin("GPIO 17", 11, 17),
+        new O_pin("GPIO 18 (PCM_CLK)", 12, 18),
+        new O_pin("3v3 power", 13, null),
+        new O_pin("Ground", 14, null),
+        new O_pin("GPIO 21", 15, 21),
+        new O_pin("GPIO 23", 16, 23),
+        new O_pin("GPIO 22", 17, 22),
+        new O_pin("Ground", 18, null),
+        new O_pin("GPIO 10 (MOSI)", 19, 10),
+        new O_pin("Ground", 20, null),
+        new O_pin("GPIO 9 (MISO)", 21, 9),
+        new O_pin("GPIO 25", 22, 25),
+        new O_pin("GPIO 11 (SCLK)", 23, 11),
+        new O_pin("GPIO 8 (CEO)", 24, 8),
+        new O_pin("Ground", 25, null),
+        new O_pin("GPIO 7 (CE1)", 26, 7)
+    ]
+)
 
-// also arrays of objects can be exported
-let a_o_raspi_pin = [
-    o_raspi_pin__hans, 
-    new O_raspi_pin()// if you dont need the named object
-    // 'unnamed' objects can always be accessed with a_o.find(o=>...)
-]
+let o_raspi__v2 = new O_raspi(
+    'v2', 
+    [
+        new O_pin("3v3 power", 1, null), 
+        new O_pin("5v power", 2, null),
+        new O_pin("GPIO 2 (SDA)", 3, 2),
+        new O_pin("5v power", 4, null),
+        new O_pin("GPIO 3 (SCL)", 5, 3),
+        new O_pin("Ground", 6, null),
+        new O_pin("GPIO 4 (GPCLK0)", 7, 4),
+        new O_pin("GPIO 14 (TXD)", 8, 14),
+        new O_pin("Ground", 9, null),
+        new O_pin("GPIO 15 (RXD)", 10, 15),
+        new O_pin("GPIO 17", 11, 17),
+        new O_pin("GPIO 18 (PCM_CLK)", 12, 18),
+        new O_pin("3v3 power", 13, null),
+        new O_pin("Ground", 14, null),
+        new O_pin("GPIO 27", 15, 27),
+        new O_pin("GPIO 23", 16, 23),
+        new O_pin("GPIO 22", 17, 22),
+        new O_pin("Ground", 18, null),
+        new O_pin("GPIO 10 (MOSI)", 19, 10),
+        new O_pin("Ground", 20, null),
+        new O_pin("GPIO 9 (MISO)", 21, 9),
+        new O_pin("GPIO 25", 22, 25),
+        new O_pin("GPIO 11 (SCLK)", 23, 11),
+        new O_pin("GPIO 8 (CEO)", 24, 8),
+        new O_pin("Ground", 25, null),
+        new O_pin("GPIO 7 (CE1)", 26, 7)
+    ]
+)
+
 export {
-    o_raspi_pin__hans,
-    a_o_raspi_pin
+    o_raspi__v1,
+    o_raspi__v2, 
+    s_path_abs_folder_gpio,
+    s_pin_direction_in,
+    s_pin_direction_out,
+    s_pin_state_low,
+    s_pin_state_high
 }
