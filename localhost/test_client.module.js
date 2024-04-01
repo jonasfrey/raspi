@@ -22,11 +22,25 @@ import {
 
 // import { stuff} from './client.module.js'
 
+var o_mod = await import(`./mod.js`);
+
 let a_o_test = [
     f_o_test(
-        'asdf', 
+        'import', 
         async ()=>{
-            f_assert_equals(1,1) 
+            //./readme.md:start
+            //md: ### import the stuff
+            
+            //top level import
+            // import {
+            //     f_pin_export__from_n_gpio_number,
+            //     //more functions and variables here 
+            // } from `https://deno.land/x/raspi/[0.0.0]/mod.js`;
+
+            // or runtime async import
+            let o_mod = await import(`https://deno.land/x/raspi/[0.0.0]/mod.js`);
+            // o_mod.f_pin_export__from_n_gpio_number(...)
+            //./readme.md:end
         }
     ),
     f_o_test(
@@ -34,12 +48,6 @@ let a_o_test = [
         async ()=>{
             //./readme.md:start
             //md: ## write to a pin 'manually' 
-            //md: ### import the stuff 
-            let s_url_module = `https://deno.land/x/raspi/[0.0.0]/mod.js`;
-            //./readme.md:end
-            s_url_module = './mod.js'
-            //./readme.md:start
-            let o_mod = import(`${s_url_module}/mod.js`);
             //md: the pin GPIO number is not the index of the pin if you look at the pins as a 
             //md: (2x10) matrix
             let n_gpio_number = 0;
@@ -72,12 +80,6 @@ let a_o_test = [
         async ()=>{
             //./readme.md:start
             //md: ## write to a pin 'automatically' 
-            //md: ### import the stuff 
-            let s_url_module = `https://deno.land/x/raspi/[0.0.0]/mod.js`;
-            //./readme.md:end
-            s_url_module = './mod.js'
-            //./readme.md:start
-            let o_mod = import(`${s_url_module}/mod.js`);
             //md:  get the raspberry pi (version 1 or version 2)
             let o_raspi__v2 = o_mod.o_raspi__v2;
             //md: get the desired pin
@@ -99,6 +101,40 @@ let a_o_test = [
             // of the pin was written last where the state changed
             console.log(o_pin__gpio_3.v_n_mics_wpn__last_write_where_state_chaned) // eg. 5002.229476
             //./readme.md:end
+        }
+    ),
+    f_o_test(
+        'print_the_pin_layout', 
+        async ()=>{
+            //./readme.md:start
+            
+            //md: # layout
+            //md: returns the raspberry pi pins layout and it current states
+            //md: - not exported ,< in , > out, ■ 1, □ 0
+            f_assert_equals(1,1)
+            let o_raspi__v2 = o_mod.o_raspi__v2;
+            console.log(o_mod.f_s_pins_state_layout)
+            let s = o_mod.f_s_pins_state_layout(
+                o_raspi__v2
+            )
+            console.log(s)
+            // raspi v2: Mon Apr 01 2024 19:11:04 GMT+0200 (Central European Summer Time).897
+            // |---------------------|---------------------|
+            // |-   3v3 power        |-   5v power         |
+            // |> ■ GPIO 2 (SDA)     |-   5v power         |
+            // |< □ GPIO 3 (SCL)     |-   Ground           |
+            // |-   GPIO 4 (GPCLK0)  |-   GPIO 14 (TXD)    |
+            // |-   Ground           |-   GPIO 15 (RXD)    |
+            // |-   GPIO 17          |-   GPIO 18 (PCM_CLK)|
+            // |-   3v3 power        |-   Ground           |
+            // |-   GPIO 27          |-   GPIO 23          |
+            // |-   GPIO 22          |-   Ground           |
+            // |-   GPIO 10 (MOSI)   |-   Ground           |
+            // |-   GPIO 9 (MISO)    |-   GPIO 25          |
+            // |-   GPIO 11 (SCLK)   |-   GPIO 8 (CEO)     |
+            // |-   Ground           |-   GPIO 7 (CE1)     |
+            //./readme.md:end
+
         }
     ),
 ]

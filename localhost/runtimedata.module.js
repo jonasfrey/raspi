@@ -22,21 +22,7 @@ var EDGE_FALLING = 'falling';
 var EDGE_BOTH    = 'both';
 
 
-// | P1-01:type   | P1-02:type   |
-// |--------------|--------------|
-// | 01:3V3 Power | 02:5V Power  |
-// | 03:GPIO 2    | 04:5V Power  |
-// | 05:GPIO 3    | 06:Ground    |
-// | 07:GPIO 4    | 08:GPIO 14   |
-// | 09:Ground    | 10:GPIO 15   |
-// | 11:GPIO 17   | 12:GPIO 18   |
-// | 13:3V3 Power | 14:Ground    |
-// | 15:GPIO 27   | 16:GPIO 23   |
-// | 17:GPIO 22   | 18:Ground    |
-// | 19:GPIO 10   | 20:Ground    |
-// | 21:GPIO 9    | 22:GPIO 25   |
-// | 23:GPIO 11   | 24:GPIO 8    |
-// | 25:Ground    | 26:GPIO 7    |
+
 
 
 let o_raspi__v1 = new O_raspi(

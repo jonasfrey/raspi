@@ -131,11 +131,66 @@ const f_v_pin_getorset_state__from_o_pin = async function(
     return n_state
 }
 
+let f_s_pins_state_layout = function(
+    o_raspi
+){
+    let n_width_col = 21
+
+    let o_s_direction_or_state_s_char = {
+        direction_in : '>',
+        direction_out : '<',
+        direction_null : '-',
+        state_0 :'□',
+        state_1 :'■',
+        state_null :' ',
+    }
+
+    let o_date = new Date()
+    let s = `${o_date.toString()}.${o_date.getMilliseconds()}`
+
+    return [
+        `raspi ${o_raspi.s_name}: ${s}`,
+        `|${'-'.repeat(n_width_col)}|${'-'.repeat(n_width_col)}|`,
+        new Array(o_raspi.a_o_pin.length/2).fill(0).map((n, n_idx)=>{
+            let a_o_pin = [
+                o_raspi.a_o_pin[n_idx*2],
+                o_raspi.a_o_pin[n_idx*2+1]
+            ]
+            return `|${a_o_pin.map(o=>{
+                let s_dir = (o.v_s_direction) ? o.v_s_direction : 'null'
+                let s_state = (o.v_s_direction) ? o.v_s_direction : 'null'
+                let s = [
+                    o_s_direction_or_state_s_char[`direction_${s_dir}`],
+                    o_s_direction_or_state_s_char[`state_${s_state}`],
+                    o.s_name_function_designation, 
+                ].join(' ')
+                return s.padEnd(n_width_col, ' ')
+            }).join('|')}|`
+        }).join('\n')
+    ].join('\r\n')
+    // | P1-01:type   | P1-02:type   |
+    // raspi v2: Mon Apr 01 2024 19:11:04 GMT+0200 (Central European Summer Time).897
+    // |---------------------|---------------------|
+    // |-   3v3 power        |-   5v power         |
+    // |-   GPIO 2 (SDA)     |-   5v power         |
+    // |-   GPIO 3 (SCL)     |-   Ground           |
+    // |-   GPIO 4 (GPCLK0)  |-   GPIO 14 (TXD)    |
+    // |-   Ground           |-   GPIO 15 (RXD)    |
+    // |-   GPIO 17          |-   GPIO 18 (PCM_CLK)|
+    // |-   3v3 power        |-   Ground           |
+    // |-   GPIO 27          |-   GPIO 23          |
+    // |-   GPIO 22          |-   Ground           |
+    // |-   GPIO 10 (MOSI)   |-   Ground           |
+    // |-   GPIO 9 (MISO)    |-   GPIO 25          |
+    // |-   GPIO 11 (SCLK)   |-   GPIO 8 (CEO)     |
+    // |-   Ground           |-   GPIO 7 (CE1)     |
+}
 export {
     f_pin_export__from_n_gpio_number,
     f_pin_unexport__from_n_gpio_number,
     f_pin_set_direction__from_n_gpio_number,
     f_pin_set_state__from_n_gpio_number,
     f_n__pin_get_state__from_n_gpio_number, 
-    f_v_pin_getorset_state__from_o_pin
+    f_v_pin_getorset_state__from_o_pin, 
+    f_s_pins_state_layout
 }
