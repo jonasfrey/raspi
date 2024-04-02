@@ -89,6 +89,46 @@ let o_raspi__v2 = new O_raspi(
     ]
 )
 
+let o_fs = null;
+let f_b_file_exists = null;
+let f_write_text_file = null;
+let f_read_text_file = null;
+
+let b_deno = typeof Deno !== 'undefined'
+let b_node = typeof process !== 'undefined' && process.versions && process.versions.node
+let b_bun = typeof Bun !== 'undefined'
+
+if(b_deno){
+    f_b_file_exists = async function(
+        s_path_file
+    ){
+        let o = await Deno.stat(s_path_file)
+        return o.isFile;
+    }
+    f_write_text_file = Deno.writeTextFile
+    f_read_text_file = Deno.readTextFile
+}
+if(b_node){
+    o_fs = await import('fs');
+    f_b_file_exists = async function(
+        s_path_file
+    ){
+        return o_fs.existsSync(s_path_file)
+    }
+    f_write_text_file = o_fs.writeFileSync//(path,content);
+    f_read_text_file = o_fs.readFileSync;//('/Users/joe/test.txt', 'utf8');
+}
+if(b_bun){
+    f_b_file_exists = async function(
+        s_path_file
+    ){
+        const file = Bun.file(s_path_file);
+
+        return await file.exists(); // boolean;
+    }
+}
+
+
 export {
     o_raspi__v1,
     o_raspi__v2, 
@@ -96,5 +136,11 @@ export {
     s_pin_direction_in,
     s_pin_direction_out,
     n_pin_state_low,
-    n_pin_state_high
+    n_pin_state_high,
+    b_deno,
+    b_node,
+    b_bun,
+    f_b_file_exists,
+    f_write_text_file,
+    f_read_text_file
 }

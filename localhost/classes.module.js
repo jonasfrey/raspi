@@ -18,10 +18,12 @@ class O_pin{
         s_name_function_designation, 
         n_pin_number,
         v_n_gpio_number,
+        s_direction
     ){
         this.s_name_function_designation = s_name_function_designation
         this.n_pin_number = n_pin_number
         this.v_n_gpio_number = v_n_gpio_number
+        this.s_direction = s_direction
         this.v_n_mics_wpn__last_write = null
         this.v_n_mics_wpn__last_write_where_state_chaned = null
         this.v_n_mics_wpn__last_read = null

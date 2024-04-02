@@ -2,54 +2,18 @@
 import { 
     s_path_abs_folder_gpio,
     s_pin_direction_in,
+    f_b_file_exists, 
+    f_read_text_file, 
+    f_write_text_file
 } from "./runtimedata.module.js";
-
-let o_fs = null;
-let f_b_file_exists = null;
-let f_write_text_file = null;
-let f_read_text_file = null;
-
-let b_deno = typeof Deno !== 'undefined'
-let b_node = typeof process !== 'undefined' && process.versions && process.versions.node
-let b_bun = typeof Bun !== 'undefined'
-
-if(b_deno){
-    f_b_file_exists = async function(
-        s_path_file
-    ){
-        let o = await Deno.stat(s_path_file)
-        return o.isFile;
-    }
-    f_write_text_file = Deno.writeTextFile
-    f_read_text_file = Deno.readTextFile
-}
-if(b_node){
-    o_fs = await import('fs');
-    f_b_file_exists = async function(
-        s_path_file
-    ){
-        return o_fs.existsSync(s_path_file)
-    }
-    f_write_text_file = Deno.writeTextFile
-    f_read_text_file = Deno.readTextFile
-}
-if(b_bun){
-    f_b_file_exists = async function(
-        s_path_file
-    ){
-        const file = Bun.file(s_path_file);
-
-        return await file.exists(); // boolean;
-    }
-}
-
 
 
 const f_b_pin_exported__from_n_gpio_number = async function(
     n_gpio_number
 ){
     try {
-        let f_b_file_exists = f_b_file_exists(`${s_path_abs_folder_gpio}/gpio${n_gpio_number}`)
+        let b_file_exists = f_b_file_exists(`${s_path_abs_folder_gpio}/gpio${n_gpio_number}`)
+        return b_file_exists
     } catch (error) {
         //check for permission error
         console.log(error)
@@ -63,7 +27,7 @@ const f_pin_export__from_n_gpio_number = async function(
     // a exported pin stays exported unless it is 'un-exported' or the system is rebooted
     return f_write_text_file(
         `${s_path_abs_folder_gpio}/export`, 
-        n_gpio_number
+        n_gpio_number.toString()
     )
 }
 const f_pin_unexport__from_n_gpio_number = async function(
@@ -71,33 +35,34 @@ const f_pin_unexport__from_n_gpio_number = async function(
 ){
     // a pin has to be 'exported' to be able to write its 'direction' and 'state'
     // a exported pin stays exported unless it is 'un-exported' or the system is rebooted
-    return Deno.writeTextFile(
+    return f_write_text_file(
         `${s_path_abs_folder_gpio}/unexport`, 
-        n_gpio_number
+        n_gpio_number.toString()
     )
 }
 const f_pin_set_direction__from_n_gpio_number = async function(
     n_gpio_number, 
     s_pin_direction
 ){
-    return Deno.writeTextFile(
+    return f_write_text_file(
         `${s_path_abs_folder_gpio}/gpio${n_gpio_number}/direction`, 
         s_pin_direction
     )
 }
 const f_pin_set_state__from_n_gpio_number = async function(
     n_gpio_number, 
-    s_state
+    n_state
 ){
-    return Deno.writeTextFile(
+
+    return f_write_text_file(
         `${s_path_abs_folder_gpio}/gpio${n_gpio_number}/value`, 
-        (s_state == s_pin_state_high) ? 1 : 0   
+        n_state.toString()
     )
 }
 const f_n__pin_get_state__from_n_gpio_number = async function(
     n_gpio_number, 
 ){
-    const s = Deno.readTextFile(
+    const s = f_read_text_file(
         `${s_path_abs_folder_gpio}/gpio${n_gpio_number}/value`,    
     )
     return parseInt(s)
@@ -117,7 +82,7 @@ const f_pin_set_state__from_o_pin = async function(
         o_pin.v_n_mics_wpn__last_write_where_state_chaned = performance.now()
         o_pin.n_state = n_state
         return f_pin_set_state__from_n_gpio_number(
-            o_pin.n_gpio_number, 
+            o_pin.v_n_gpio_number, 
             n_state
         )
     }
@@ -127,7 +92,7 @@ const f_n__pin_get_state__from_o_pin = async function(
 ){
     // o_pin has to be exported at this point
     // o_pin has to have a direction at this point
-    let n_state = f_n__pin_get_state__from_n_gpio_number(o_pin.n_gpio_number)
+    let n_state = f_n__pin_get_state__from_n_gpio_number(o_pin.v_n_gpio_number)
     o_pin.v_n_mics_wpn__last_read = performance.now()    
     if(n_state != o_pin.n_state){
         o_pin.v_n_mics_wpn__last_read_where_state_chaned = performance.now()
@@ -143,7 +108,7 @@ let f_s_pins_state_layout = function(
     let o_s_direction_or_state_s_char = {
         direction_in : '>',
         direction_out : '<',
-        direction_null : '-',
+        direction_null : '_',
         state_0 :'□',
         state_1 :'■',
         state_null :' ',
@@ -161,8 +126,8 @@ let f_s_pins_state_layout = function(
                 o_raspi.a_o_pin[n_idx*2+1]
             ]
             return `|${a_o_pin.map(o=>{
-                let s_dir = (o.v_s_direction) ? o.v_s_direction : 'null'
-                let s_state = (o.v_n_state) ? o.v_n_state : 'null'
+                let s_dir = (o.s_direction) ? o.s_direction : 'null'
+                let s_state = (o.n_state) ? o.n_state : 'null'
                 let s = [
                     o_s_direction_or_state_s_char[`direction_${s_dir}`],
                     o_s_direction_or_state_s_char[`state_${s_state}`],
@@ -195,7 +160,7 @@ let f_o_pin__from_o_raspi = async function(
     n_gpio_number, 
     s_pin_direction = s_pin_direction_in
 ){
-    let o_pin = o_raspi.a_o_pin.find(o=>o.n_gpio_number == n_gpio_number);
+    let o_pin = o_raspi.a_o_pin.find(o=>o.v_n_gpio_number == n_gpio_number);
     if(!o_pin){
         throw Error(`cannot find pin with gpio pin number ${n_gpio_number} on board ${o_raspi.s_name}, make sure to use the correct GPIO pin number: the board layout is the following ${f_s_pins_state_layout(o_raspi)}`);
     }
@@ -205,7 +170,7 @@ let f_o_pin__from_o_raspi = async function(
         await f_pin_export__from_n_gpio_number(n_gpio_number);
     }
     await f_pin_set_direction__from_n_gpio_number(n_gpio_number, s_pin_direction);
-    
+    o_pin.s_direction = s_pin_direction
     return o_pin;
 }
 let f_uninit_from_o_pin = async function(o_pin){
