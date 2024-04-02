@@ -1,53 +1,57 @@
-// here should be functions that really are only functions
-// they take arguments do something and return something
-// they should not depend on runtime data from the runtime scope
-// for example
-// do 
-// let f_n_sum = function(n_1, n_2){
-//     return n_1 + n_2
-// }
-// // don't 
-// let n_base = 10
-// let f_n_sum_dont = function(n_1){
-//     return n_base + n_1
-// }
-// export {
-//     f_n_sum
-// }
-// Export both pins to make them available in the user space:
-
-// sh
-
-// echo 0 > /sys/class/gpio/export
-// echo 3 > /sys/class/gpio/export
-
-// Set the direction of both pins to output:
-
-// sh
-
-// echo out > /sys/class/gpio/gpio0/direction
-// echo out > /sys/class/gpio/gpio3/direction
-
-// Write a high value (1) to both pins to set them high:
-
-// sh
-
-// echo 1 > /sys/class/gpio/gpio0/value
-// echo 1 > /sys/class/gpio/gpio3/value
 
 import { 
     s_path_abs_folder_gpio,
     s_pin_direction_in,
 } from "./runtimedata.module.js";
 
+let o_fs = null;
+let f_b_file_exists = null;
+let f_write_text_file = null;
+let f_read_text_file = null;
+
+let b_deno = typeof Deno !== 'undefined'
+let b_node = typeof process !== 'undefined' && process.versions && process.versions.node
+let b_bun = typeof Bun !== 'undefined'
+
+if(b_deno){
+    f_b_file_exists = async function(
+        s_path_file
+    ){
+        let o = await Deno.stat(s_path_file)
+        return o.isFile;
+    }
+    f_write_text_file = Deno.writeTextFile
+    f_read_text_file = Deno.readTextFile
+}
+if(b_node){
+    o_fs = await import('fs');
+    f_b_file_exists = async function(
+        s_path_file
+    ){
+        return o_fs.existsSync(s_path_file)
+    }
+    f_write_text_file = Deno.writeTextFile
+    f_read_text_file = Deno.readTextFile
+}
+if(b_bun){
+    f_b_file_exists = async function(
+        s_path_file
+    ){
+        const file = Bun.file(s_path_file);
+
+        return await file.exists(); // boolean;
+    }
+}
+
+
 
 const f_b_pin_exported__from_n_gpio_number = async function(
     n_gpio_number
 ){
     try {
-        let o_stat = await Deno.stat(`${s_path_abs_folder_gpio}/gpio${n_gpio_number}`)
-        return o_stat.isFile
+        let f_b_file_exists = f_b_file_exists(`${s_path_abs_folder_gpio}/gpio${n_gpio_number}`)
     } catch (error) {
+        //check for permission error
         console.log(error)
         return false
     }
@@ -57,7 +61,7 @@ const f_pin_export__from_n_gpio_number = async function(
 ){
     // a pin has to be 'exported' to be able to write its 'direction' and 'state'
     // a exported pin stays exported unless it is 'un-exported' or the system is rebooted
-    return Deno.writeTextFile(
+    return f_write_text_file(
         `${s_path_abs_folder_gpio}/export`, 
         n_gpio_number
     )
