@@ -10,8 +10,8 @@ import {
 const s_path_abs_folder_gpio = '/sys/class/gpio';
 const s_pin_direction_in   = 'in';
 const s_pin_direction_out  = 'out';
-const s_pin_state_low  = 'low';
-const s_pin_state_high = 'high';
+const n_pin_state_low  = 0;
+const n_pin_state_high = 1;
 
 var MODE_RPI = 'mode_rpi';
 var MODE_BCM = 'mode_bcm';
@@ -95,6 +95,6 @@ export {
     s_path_abs_folder_gpio,
     s_pin_direction_in,
     s_pin_direction_out,
-    s_pin_state_low,
-    s_pin_state_high
+    n_pin_state_low,
+    n_pin_state_high
 }

@@ -35,9 +35,23 @@
 // echo 1 > /sys/class/gpio/gpio0/value
 // echo 1 > /sys/class/gpio/gpio3/value
 
-import { s_path_abs_folder_gpio, s_pin_state_high } from "./runtimedata.module.js";
+import { 
+    s_path_abs_folder_gpio,
+    s_pin_direction_in,
+} from "./runtimedata.module.js";
 
 
+const f_b_pin_exported__from_n_gpio_number = async function(
+    n_gpio_number
+){
+    try {
+        let o_stat = await Deno.stat(`${s_path_abs_folder_gpio}/gpio${n_gpio_number}`)
+        return o_stat.isFile
+    } catch (error) {
+        console.log(error)
+        return false
+    }
+}
 const f_pin_export__from_n_gpio_number = async function(
     n_gpio_number
 ){
@@ -84,45 +98,31 @@ const f_n__pin_get_state__from_n_gpio_number = async function(
     )
     return parseInt(s)
 }
-async function readGpioValue(pinNumber) {
-    const filePath = `/sys/class/gpio/gpio${pinNumber}/value`;
-    try {
-      const text = await Deno.readTextFile(filePath);
-      console.log(`GPIO pin ${pinNumber} value:`, text.trim());
-      return text.trim(); // Returns '0' or '1'
-    } catch (error) {
-      console.error(`Error reading GPIO pin ${pinNumber}:`, error);
-      throw error; // Re-throw or handle as needed
-    }
-  }
-  
 
-const f_v_pin_getorset_state__from_o_pin = async function(
+
+const f_pin_set_state__from_o_pin = async function(
     o_pin, 
-    v_s_state, 
+    n_state
 ){
-    if(!o_pin.v_s_direction){
-        //pin has not been 'exported'
-        await f_pin_export__from_n_gpio_number(o_pin.n_gpio_number);
-        if(!v_s_state){
-            await f_pin_set_direction__from_n_gpio_number(o_pin.n_gpio_number, 'in')
-        }
-        if(v_s_state){
-            await f_pin_set_direction__from_n_gpio_number(o_pin.n_gpio_number, 'out')
-        }
-    }
-    if(v_s_state){
-        o_pin.v_n_mics_wpn__last_write = window.performance.now()
-        let n_state = (v_s_state == s_pin_state_high) ? 1 : 0 
-        if(n_state != o_pin.n_state){
-            o_pin.v_n_mics_wpn__last_write_where_state_chaned = window.performance.now()
-        }
+    // o_pin has to be exported at this point
+    // o_pin has to have a direction at this point
+    o_pin.v_n_mics_wpn__last_write = window.performance.now()
+        
+    if(n_state != o_pin.n_state){
+        // only write to pin if state has changed
+        o_pin.v_n_mics_wpn__last_write_where_state_chaned = window.performance.now()
         o_pin.n_state = n_state
-        f_pin_set_state__from_n_gpio_number(
+        return f_pin_set_state__from_n_gpio_number(
             o_pin.n_gpio_number, 
-            v_s_state
+            n_state
         )
     }
+}
+const f_n__pin_get_state__from_o_pin = async function(
+    o_pin
+){
+    // o_pin has to be exported at this point
+    // o_pin has to have a direction at this point
     let n_state = f_n__pin_get_state__from_n_gpio_number(o_pin.n_gpio_number)
     o_pin.v_n_mics_wpn__last_read = window.performance.now()    
     if(n_state != o_pin.n_state){
@@ -158,7 +158,7 @@ let f_s_pins_state_layout = function(
             ]
             return `|${a_o_pin.map(o=>{
                 let s_dir = (o.v_s_direction) ? o.v_s_direction : 'null'
-                let s_state = (o.v_s_direction) ? o.v_s_direction : 'null'
+                let s_state = (o.v_n_state) ? o.v_n_state : 'null'
                 let s = [
                     o_s_direction_or_state_s_char[`direction_${s_dir}`],
                     o_s_direction_or_state_s_char[`state_${s_state}`],
@@ -185,12 +185,42 @@ let f_s_pins_state_layout = function(
     // |-   GPIO 11 (SCLK)   |-   GPIO 8 (CEO)     |
     // |-   Ground           |-   GPIO 7 (CE1)     |
 }
+
+let f_o_pin__from_o_raspi = async function(
+    o_raspi, 
+    n_gpio_number, 
+    s_pin_direction = s_pin_direction_in
+){
+    let o_pin = o_raspi.a_o_pin.find(o=>o.n_gpio_number == n_gpio_number);
+    if(!o_pin){
+        throw Error(`cannot find pin with gpio pin number ${n_gpio_number} on board ${o_raspi.s_name}, make sure to use the correct GPIO pin number: the board layout is the following ${f_s_pins_state_layout(o_raspi)}`);
+    }
+
+    let b_exported = await f_b_pin_exported__from_n_gpio_number(n_gpio_number);
+    if(!b_exported){
+        await f_pin_export__from_n_gpio_number(n_gpio_number);
+    }
+    await f_pin_set_direction__from_n_gpio_number(n_gpio_number, s_pin_direction);
+    
+    return o_pin;
+}
+let f_uninit_from_o_pin = async function(o_pin){
+    if(await f_b_pin_exported__from_n_gpio_number(o_pin.n_gpio_number)){
+        await f_pin_unexport__from_n_gpio_number(o_pin.n_gpio_number)
+    }
+    o_pin.s_pin_direction = null;
+}
+
 export {
+    f_b_pin_exported__from_n_gpio_number,
     f_pin_export__from_n_gpio_number,
     f_pin_unexport__from_n_gpio_number,
     f_pin_set_direction__from_n_gpio_number,
     f_pin_set_state__from_n_gpio_number,
     f_n__pin_get_state__from_n_gpio_number, 
-    f_v_pin_getorset_state__from_o_pin, 
-    f_s_pins_state_layout
+    f_pin_set_state__from_o_pin,
+    f_n__pin_get_state__from_o_pin,
+    f_s_pins_state_layout, 
+    f_o_pin__from_o_raspi,
+    f_uninit_from_o_pin
 }
