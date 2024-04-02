@@ -189,7 +189,7 @@ let f_raf = function(){
     n_id_raf = window.requestAnimationFrame(f_raf);
     f_update_data_in_o_gpu_gateway(
         {
-            n_ms_time: window.performance.now()
+            n_ms_time: performance.now()
         }, 
         o_gpu_gateway, 
     )

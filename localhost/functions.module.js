@@ -106,11 +106,11 @@ const f_pin_set_state__from_o_pin = async function(
 ){
     // o_pin has to be exported at this point
     // o_pin has to have a direction at this point
-    o_pin.v_n_mics_wpn__last_write = window.performance.now()
+    o_pin.v_n_mics_wpn__last_write = performance.now()
         
     if(n_state != o_pin.n_state){
         // only write to pin if state has changed
-        o_pin.v_n_mics_wpn__last_write_where_state_chaned = window.performance.now()
+        o_pin.v_n_mics_wpn__last_write_where_state_chaned = performance.now()
         o_pin.n_state = n_state
         return f_pin_set_state__from_n_gpio_number(
             o_pin.n_gpio_number, 
@@ -124,9 +124,9 @@ const f_n__pin_get_state__from_o_pin = async function(
     // o_pin has to be exported at this point
     // o_pin has to have a direction at this point
     let n_state = f_n__pin_get_state__from_n_gpio_number(o_pin.n_gpio_number)
-    o_pin.v_n_mics_wpn__last_read = window.performance.now()    
+    o_pin.v_n_mics_wpn__last_read = performance.now()    
     if(n_state != o_pin.n_state){
-        o_pin.v_n_mics_wpn__last_read_where_state_chaned = window.performance.now()
+        o_pin.v_n_mics_wpn__last_read_where_state_chaned = performance.now()
     }
     return n_state
 }
