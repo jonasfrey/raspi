@@ -2,7 +2,7 @@
 import { 
     s_path_abs_folder_gpio,
     s_pin_direction_in,
-    f_b_file_exists, 
+    f_b_path_exists, 
     f_read_text_file, 
     f_write_text_file
 } from "./runtimedata.module.js";
@@ -12,7 +12,7 @@ const f_b_pin_exported__from_n_gpio_number = async function(
     n_gpio_number
 ){
     try {
-        let b_file_exists = f_b_file_exists(`${s_path_abs_folder_gpio}/gpio${n_gpio_number}`)
+        let b_file_exists = f_b_path_exists(`${s_path_abs_folder_gpio}/gpio${n_gpio_number}`)
         return b_file_exists
     } catch (error) {
         //check for permission error

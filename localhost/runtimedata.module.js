@@ -90,7 +90,7 @@ let o_raspi__v2 = new O_raspi(
 )
 
 let o_fs = null;
-let f_b_file_exists = null;
+let f_b_path_exists = null;
 let f_write_text_file = null;
 let f_read_text_file = null;
 
@@ -98,19 +98,32 @@ let b_deno = typeof Deno !== 'undefined'
 let b_node = typeof process !== 'undefined' && process.versions && process.versions.node
 let b_bun = typeof Bun !== 'undefined'
 
+let n_uid = null;
 if(b_deno){
-    f_b_file_exists = async function(
+    n_uid = Deno.uid();
+    f_b_path_exists = async function(
         s_path_file
     ){
-        let o = await Deno.stat(s_path_file)
-        return o.isFile;
+        try {
+            let o = await Deno.stat(s_path_file)
+            return true       
+        } catch (error) {
+            return false
+        }
     }
     f_write_text_file = Deno.writeTextFile
     f_read_text_file = Deno.readTextFile
 }
 if(b_node){
+    const os = await import('os');
+    try {
+        const userInfo = os.userInfo();
+        n_uid = userInfo.uid;
+    } catch (error) {
+        console.error('Could not get UID:', error);
+    }
     o_fs = await import('fs');
-    f_b_file_exists = async function(
+    f_b_path_exists = async function(
         s_path_file
     ){
         return o_fs.existsSync(s_path_file)
@@ -119,11 +132,15 @@ if(b_node){
     f_read_text_file = o_fs.readFileSync;//('/Users/joe/test.txt', 'utf8');
 }
 if(b_bun){
-    f_b_file_exists = async function(
+    try {
+        n_uid = parseInt(Bun.spawnSync("id", ["-u"]).stdout);
+    } catch (error) {
+        console.error('Could not get UID:', error);
+    }
+    f_b_path_exists = async function(
         s_path_file
     ){
-        const file = Bun.file(s_path_file);
-
+        const file = Bun.file(s_path_file+'/value');
         return await file.exists(); // boolean;
     }
 }
@@ -140,7 +157,8 @@ export {
     b_deno,
     b_node,
     b_bun,
-    f_b_file_exists,
+    f_b_path_exists,
     f_write_text_file,
-    f_read_text_file
+    f_read_text_file, 
+    n_uid
 }
