@@ -144,42 +144,42 @@ gpiop.setup(2, gpiop.DIR_OUT)
 // );
 
 
-// console.log('test microseconds')
-// n = 0; 
-// let n_mics = performance.now()*1000
-// while(n<1000){
-//   n+=1
-//   let n_mics2 = performance.now()*1000
-//   console.log(
-//     `delta microseconds loop iteration`,
-//     n_mics2-n_mics
-//   )
-//   n_mics = n_mics2
-// }
-// // test pulse width modulation 
-// n = 0;
-// let n_mic_sec_interval = 10000;
-// let n_duty_nor = 0.95;
-// let n_mic_sec_interval_duty = n_mic_sec_interval*n_duty_nor
-// let n_mic_sec_wpn = performance.now()*1000;
-// let b_state_low = 1
-// let b_state_low_last = 0
-// while(n < 10000000000){
-//   n_duty_nor = Math.sin(n*0.0000005)*.5+.5;
-//   n_mic_sec_interval_duty = n_mic_sec_interval*n_duty_nor
-//   // console.log(n_duty_nor)
-//   const n_mic_sec_wpn2 = performance.now()*1000;
-//   const n_mic_sec_delta = n_mic_sec_wpn2 - n_mic_sec_wpn
-//   // console.log({n_mic_sec_delta})
-//   b_state_low = n_mic_sec_delta < (n_mic_sec_interval_duty);
+console.log('test pulse width modulation')
+n = 0; 
+let n_mics = performance.now()*1000
+while(n<1000){
+  n+=1
+  let n_mics2 = performance.now()*1000
+  console.log(
+    `delta microseconds loop iteration`,
+    n_mics2-n_mics
+  )
+  n_mics = n_mics2
+}
+// test pulse width modulation 
+n = 0;
+let n_mic_sec_interval = 10000;
+let n_duty_nor = 0.95;
+let n_mic_sec_interval_duty = n_mic_sec_interval*n_duty_nor
+let n_mic_sec_wpn = performance.now()*1000;
+let b_state_low = 1
+let b_state_low_last = 0
+while(n < 10000000000){
+  n_duty_nor = Math.sin(n*0.0000005)*.5+.5;
+  n_mic_sec_interval_duty = n_mic_sec_interval*n_duty_nor
+  // console.log(n_duty_nor)
+  const n_mic_sec_wpn2 = performance.now()*1000;
+  const n_mic_sec_delta = n_mic_sec_wpn2 - n_mic_sec_wpn
+  // console.log({n_mic_sec_delta})
+  b_state_low = n_mic_sec_delta < (n_mic_sec_interval_duty);
 
-//   if(b_state_low != b_state_low_last){
-//     await f_pin_set_state__from_n_gpio_number(2,(b_state_low)?'low': "high" ); 
-//     b_state_low_last = b_state_low
-//   }
-//   if(n_mic_sec_delta >(n_mic_sec_interval)){
-//     n_mic_sec_wpn = n_mic_sec_wpn2
-//   }
-//   n+=1;
+  if(b_state_low != b_state_low_last){
+    await f_pin_set_state__from_n_gpio_number(2,(b_state_low)?0:1); 
+    b_state_low_last = b_state_low
+  }
+  if(n_mic_sec_delta >(n_mic_sec_interval)){
+    n_mic_sec_wpn = n_mic_sec_wpn2
+  }
+  n+=1;
 
-// }
+}
