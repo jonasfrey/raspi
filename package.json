@@ -1,6 +1,6 @@
 {
-	"type": "module",
-	"dependencies": {
-		"rpi-gpio": "^2.1.7"
-	}
+	"type":"module",
+  "dependencies": {
+    "rpi-gpio": "^2.1.7"
+  }
 }

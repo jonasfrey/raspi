@@ -23,8 +23,6 @@ var EDGE_BOTH    = 'both';
 
 
 
-
-
 let o_raspi__v1 = new O_raspi(
     'v1', 
     [
@@ -93,10 +91,12 @@ let o_fs = null;
 let f_b_path_exists = null;
 let f_write_text_file = null;
 let f_read_text_file = null;
+let f_o_file_descriptor = null;
 
 let b_deno = typeof Deno !== 'undefined'
 let b_node = typeof process !== 'undefined' && process.versions && process.versions.node
 let b_bun = typeof Bun !== 'undefined'
+
 
 let n_uid = null;
 if(b_deno){
@@ -128,6 +128,8 @@ if(b_node){
     ){
         return o_fs.existsSync(s_path_file)
     }
+    f_o_file_descriptor = o_fs.openSync;
+
     f_write_text_file = o_fs.writeFileSync//(path,content);
     f_read_text_file = o_fs.readFileSync;//('/Users/joe/test.txt', 'utf8');
 }
@@ -160,5 +162,7 @@ export {
     f_b_path_exists,
     f_write_text_file,
     f_read_text_file, 
-    n_uid
+    n_uid, 
+    f_o_file_descriptor,
+    o_fs
 }

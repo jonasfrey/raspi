@@ -4,7 +4,9 @@ import {
     s_pin_direction_in,
     f_b_path_exists, 
     f_read_text_file, 
-    f_write_text_file
+    f_write_text_file,
+    f_o_file_descriptor,
+    o_fs
 } from "./runtimedata.module.js";
 
 
@@ -68,7 +70,6 @@ const f_n__pin_get_state__from_n_gpio_number = async function(
     return parseInt(s)
 }
 
-
 const f_pin_set_state__from_o_pin = async function(
     o_pin, 
     n_state
@@ -77,15 +78,18 @@ const f_pin_set_state__from_o_pin = async function(
     // o_pin has to have a direction at this point
     o_pin.v_n_mics_wpn__last_write = performance.now()
         
-    if(n_state != o_pin.n_state){
+    // if(n_state != o_pin.n_state){
         // only write to pin if state has changed
         o_pin.v_n_mics_wpn__last_write_where_state_chaned = performance.now()
         o_pin.n_state = n_state
-        return f_pin_set_state__from_n_gpio_number(
-            o_pin.v_n_gpio_number, 
-            n_state
-        )
-    }
+        
+        // o_fs.writeSync(o_pin.o_file_descriptor_value, Buffer.from(n_state.toString()), 0, 1, 0);
+        return o_fs.writeSync(o_pin.o_file_descriptor_value, Buffer.from(n_state.toString()), 0, 1, 0);
+        // return f_pin_set_state__from_n_gpio_number(
+        //     o_pin.v_n_gpio_number, 
+        //     n_state
+        // )
+    // }
 }
 const f_n__pin_get_state__from_o_pin = async function(
     o_pin
@@ -169,6 +173,10 @@ let f_o_pin__from_o_raspi = async function(
     if(!b_exported){
         await f_pin_export__from_n_gpio_number(n_gpio_number);
     }
+    o_pin.o_file_descriptor_value = await f_o_file_descriptor(
+        `${s_path_abs_folder_gpio}/gpio${n_gpio_number}/value`, 
+        'r+'
+    );
     await f_pin_set_direction__from_n_gpio_number(n_gpio_number, s_pin_direction);
     o_pin.s_direction = s_pin_direction
     return o_pin;
