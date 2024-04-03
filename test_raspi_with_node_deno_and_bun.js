@@ -56,7 +56,9 @@ let o_pin__out2 = await f_o_pin__from_o_raspi(
   s_pin_direction_out 
 );
 
+
 let n = 0;
+let n_wpn = window.performance.now();
 while(n < 1000){
   n+=1;
   await f_pin_set_state__from_o_pin(
@@ -67,14 +69,56 @@ while(n < 1000){
     o_pin__out3,
     1-(n%2),
   )
-  console.log(o_pin__out3)
-  console.log(
-    f_s_pins_state_layout(
-      o_raspi__v2
-    )
-  )
-  await f_sleep_ms(20)
+  // console.log(o_pin__out3)
+  // console.log(
+  //   f_s_pins_state_layout(
+  //     o_raspi__v2
+  //   )
+  // )
+  // await f_sleep_ms(20)
 }
+let n_wpn2 = window.performance.now();
+let n_wpn_delta = n_wpn2-n_wpn
+console.log({
+  s_msg: "done", 
+  n_wpn_delta
+})
+
+// rpi-gpio test speed comparison
+var gpiop = require('rpi-gpio').promise;
+ 
+gpiop.setup(2, gpiop.DIR_OUT)
+  .then(() => {
+    gpiop.setup(3, gpiop.DIR_OUT)
+    .then(() => {
+      
+
+
+      let n = 0;
+      let n_wpn = window.performance.now();
+      while(n < 1000){
+        n+=1;
+        await gpiop.write(2, true)
+        await gpiop.write(3, true)
+
+        // await f_sleep_ms(20)
+      }
+      let n_wpn2 = window.performance.now();
+      let n_wpn_delta = n_wpn2-n_wpn
+      console.log({
+        s_msg: "done rpi-gpio", 
+        n_wpn_delta
+      })
+
+    })
+    .catch((err) => {
+        console.log('Error: ', err.toString())
+    })
+
+  })
+  .catch((err) => {
+      console.log('Error: ', err.toString())
+  })
 
 
 // // programm exists
