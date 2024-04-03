@@ -8,10 +8,11 @@ import {
 } from "./classes.module.js"
 
 const s_path_abs_folder_gpio = '/sys/class/gpio';
-const s_pin_direction_in   = 'in';
-const s_pin_direction_out  = 'out';
-const n_pin_state_low  = 0;
-const n_pin_state_high = 1;
+let o_text_encoder = new TextEncoder();
+const a_n_u8_pin_direction_in   = o_text_encoder.encode('in');
+const a_n_u8_pin_direction_out  = o_text_encoder.encode('out');
+const a_n_u8_pin_state_low  = o_text_encoder.encode('0')
+const a_n_u8_pin_state_high = o_text_encoder.encode('1')
 
 var MODE_RPI = 'mode_rpi';
 var MODE_BCM = 'mode_bcm';
@@ -20,8 +21,6 @@ var EDGE_NONE    = 'none';
 var EDGE_RISING  = 'rising';
 var EDGE_FALLING = 'falling';
 var EDGE_BOTH    = 'both';
-
-
 
 
 
@@ -91,8 +90,8 @@ let o_raspi__v2 = new O_raspi(
 
 let o_fs = null;
 let f_b_path_exists = null;
-let f_write_text_file = null;
-let f_read_text_file = null;
+let f_write_file = null;
+let f_read_file = null;
 
 let b_deno = typeof Deno !== 'undefined'
 let b_node = typeof process !== 'undefined' && process.versions && process.versions.node
@@ -111,8 +110,8 @@ if(b_deno){
             return false
         }
     }
-    f_write_text_file = Deno.writeTextFile
-    f_read_text_file = Deno.readTextFile
+    f_write_file = Deno.writeFile
+    f_read_file = Deno.readFile
 }
 if(b_node){
     const os = await import('os');
@@ -128,8 +127,8 @@ if(b_node){
     ){
         return o_fs.existsSync(s_path_file)
     }
-    f_write_text_file = o_fs.writeFileSync//(path,content);
-    f_read_text_file = o_fs.readFileSync;//('/Users/joe/test.txt', 'utf8');
+    f_write_file = o_fs.writeFileSync//(path,content);
+    f_read_file = o_fs.readFileSync;//('/Users/joe/test.txt', 'utf8');
 }
 if(b_bun){
     try {
@@ -150,15 +149,12 @@ export {
     o_raspi__v1,
     o_raspi__v2, 
     s_path_abs_folder_gpio,
-    s_pin_direction_in,
-    s_pin_direction_out,
-    n_pin_state_low,
-    n_pin_state_high,
-    b_deno,
-    b_node,
-    b_bun,
+    a_n_u8_pin_direction_in,
+    a_n_u8_pin_direction_out,
+    a_n_u8_pin_state_low,
+    a_n_u8_pin_state_high,
+    f_write_file,
+    f_read_file,
     f_b_path_exists,
-    f_write_text_file,
-    f_read_text_file, 
-    n_uid
+    o_text_encoder
 }

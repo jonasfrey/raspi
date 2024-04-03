@@ -1,12 +1,31 @@
 
 import { 
     s_path_abs_folder_gpio,
-    s_pin_direction_in,
+    a_n_u8_pin_direction_in,
     f_b_path_exists, 
-    f_read_text_file, 
-    f_write_text_file
+    f_read_file, 
+    f_write_file,
+    o_text_encoder,
+    a_n_u8_pin_state_high
 } from "./runtimedata.module.js";
 
+
+function f_b_a_n_u8_are_equal(
+    a_n_u8_1,
+    a_n_u8_2
+) {
+    if (a_n_u8_1.length !== a_n_u8_2.length) {
+      return false;
+    }
+  
+    for (let i = 0; i < a_n_u8_1.length; i++) {
+      if (a_n_u8_1[i] !== a_n_u8_2[i]) {
+        return false;
+      }
+    }
+  
+    return true;
+  }
 
 const f_b_pin_exported__from_n_gpio_number = async function(
     n_gpio_number
@@ -25,9 +44,9 @@ const f_pin_export__from_n_gpio_number = async function(
 ){
     // a pin has to be 'exported' to be able to write its 'direction' and 'state'
     // a exported pin stays exported unless it is 'un-exported' or the system is rebooted
-    return f_write_text_file(
+    return f_write_file(
         `${s_path_abs_folder_gpio}/export`, 
-        n_gpio_number.toString()
+        o_text_encoder.encode(n_gpio_number.toString())
     )
 }
 const f_pin_unexport__from_n_gpio_number = async function(
@@ -35,34 +54,34 @@ const f_pin_unexport__from_n_gpio_number = async function(
 ){
     // a pin has to be 'exported' to be able to write its 'direction' and 'state'
     // a exported pin stays exported unless it is 'un-exported' or the system is rebooted
-    return f_write_text_file(
+    return f_write_file(
         `${s_path_abs_folder_gpio}/unexport`, 
-        n_gpio_number.toString()
+        o_text_encoder.encode(n_gpio_number.toString())
     )
 }
 const f_pin_set_direction__from_n_gpio_number = async function(
     n_gpio_number, 
-    s_pin_direction
+    a_n_u8_pin_direction
 ){
-    return f_write_text_file(
+    return f_write_file(
         `${s_path_abs_folder_gpio}/gpio${n_gpio_number}/direction`, 
-        s_pin_direction
+        a_n_u8_pin_direction
     )
 }
 const f_pin_set_state__from_n_gpio_number = async function(
     n_gpio_number, 
-    n_state
+    a_n_u8_pin_state
 ){
 
-    return f_write_text_file(
+    return f_write_file(
         `${s_path_abs_folder_gpio}/gpio${n_gpio_number}/value`, 
-        n_state.toString()
+        a_n_u8_pin_state
     )
 }
 const f_n__pin_get_state__from_n_gpio_number = async function(
     n_gpio_number, 
 ){
-    const s = f_read_text_file(
+    const s = f_read_file(
         `${s_path_abs_folder_gpio}/gpio${n_gpio_number}/value`,    
     )
     return parseInt(s)

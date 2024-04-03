@@ -9,8 +9,10 @@ import {
   // v1 and v2 have different layouts
   o_raspi__v1,
   o_raspi__v2,
-  s_pin_direction_in,
-  s_pin_direction_out,
+  a_n_u8_pin_direction_in,
+  a_n_u8_pin_direction_out,
+  a_n_u8_pin_state_high,
+  a_n_u8_pin_state_low,
 
   // functions
   // used to retrieve and initialize a pin 
@@ -47,25 +49,27 @@ let f_sleep_ms = async function(n_ms){
 let o_pin__out3 = await f_o_pin__from_o_raspi(
   o_raspi__v2,
   3, 
-  s_pin_direction_out 
+  a_n_u8_pin_direction_out 
 );
 
 let o_pin__out2 = await f_o_pin__from_o_raspi(
   o_raspi__v2,
   2, 
-  s_pin_direction_out 
+  a_n_u8_pin_direction_out 
 );
 
 let n = 0;
+let n_wpn = window.performance.now();
 while(n < 1000){
   n+=1;
+  let n_mod_2 = n%2
   await f_pin_set_state__from_o_pin(
     o_pin__out2,
-    (n%2),
+    (n_mod_2 == 0) ? a_n_u8_pin_state_high : a_n_u8_pin_state_low,
   ), 
   await f_pin_set_state__from_o_pin(
     o_pin__out3,
-    1-(n%2),
+    (n_mod_2 == 0) ? a_n_u8_pin_state_low : a_n_u8_pin_state_high,
   )
   console.log(o_pin__out3)
   console.log(
@@ -73,8 +77,14 @@ while(n < 1000){
       o_raspi__v2
     )
   )
-  await f_sleep_ms(20)
+  // await f_sleep_ms(20)
 }
+let n_wpn2 = window.performance.now();
+let n_wpn_delta = n_wpn2-n_wpn
+console.log({
+  s_msg: "done", 
+  n_wpn_delta
+})
 
 
 // // programm exists

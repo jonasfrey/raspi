@@ -22,8 +22,10 @@ import {
     // v1 and v2 have different layouts
     o_raspi__v1,
     o_raspi__v2,
-    s_pin_direction_in,
-    s_pin_direction_out,
+    a_n_u8_pin_direction_in,
+    a_n_u8_pin_direction_out,
+    a_n_u8_pin_state_high,
+    a_n_u8_pin_state_low,
     // functions
     // used to retrieve and initialize a pin 
     f_o_pin__from_o_raspi,
@@ -57,7 +59,7 @@ let a_o_test = [
             let o_pin__in = await f_o_pin__from_o_raspi(
                 o_raspi__v2, // from import {o_raspi__v2...} from ".../mod.js"
                 2, // gpio pin number
-                s_pin_direction_in // 'in' or 'out', default default is 'in'
+                a_n_u8_pin_direction_in // 'in' or 'out', default default is 'in'
             );
             let n_state = await f_n__pin_get_state__from_o_pin(
                 o_pin__in
@@ -67,16 +69,16 @@ let a_o_test = [
             let o_pin__out = await f_o_pin__from_o_raspi(
                 o_raspi__v2,
                 3, 
-                s_pin_direction_out 
+                a_n_u8_pin_direction_out 
             );
             // this function will check if the state has changed and only write to the pin if the state has changed
             await f_pin_set_state__from_o_pin(
                 o_pin__out,
-                1 // write 'high' / n_pin_state_high / 1
+                a_n_u8_pin_state_high // write 'high'  / 1
             );
             await f_pin_set_state__from_o_pin(
                 o_pin__out,
-                0 // write 'low' / n_pin_state_low / 0
+                a_n_u8_pin_state_low // write 'low'  / 0
             );
 
             // it is highly recommend to un-init the pin before the programm ends
@@ -102,15 +104,15 @@ let a_o_test = [
                 await f_pin_export__from_n_gpio_number(n_gpio_number)
             }
             // set direction 
-            await f_pin_set_direction__from_n_gpio_number(n_gpio_number, s_pin_direction_out);
+            await f_pin_set_direction__from_n_gpio_number(n_gpio_number, a_n_u8_pin_direction_in);
 
             // write high 
-            f_pin_set_state__from_n_gpio_number(n_gpio_number, 1)
+            f_pin_set_state__from_n_gpio_number(n_gpio_number, a_n_u8_pin_state_high)
             // write low
-            f_pin_set_state__from_n_gpio_number(n_gpio_number, 0)
+            f_pin_set_state__from_n_gpio_number(n_gpio_number, a_n_u8_pin_state_low)
             
             // set direction 'in' for reading the pin 
-            await f_pin_set_direction__from_n_gpio_number(n_gpio_number, s_pin_direction_in);
+            await f_pin_set_direction__from_n_gpio_number(n_gpio_number, a_n_u8_pin_direction_out);
 
             let n = f_n__pin_get_state__from_n_gpio_number(n_gpio_number);
             console.log(n)//0            
