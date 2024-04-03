@@ -32,7 +32,7 @@ import {
   n_uid
 
 } 
-from './raspi/mod.js'
+from './mod.js'
 console.log(o_raspi__v1)
 // node and bun cannot fetch scripts from url , how bad please... from "https://deno.land/x/raspi@0.0.1/mod.js"
 
