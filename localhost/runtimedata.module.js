@@ -156,5 +156,6 @@ export {
     f_write_file,
     f_read_file,
     f_b_path_exists,
-    o_text_encoder
+    o_text_encoder, 
+    n_uid
 }
