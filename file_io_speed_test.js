@@ -5,6 +5,7 @@ import {
     b_deno, 
     b_node
 } from "./localhost/runtimedata.module.js"
+
 let n_wpn = null;
 let n_wpn_delta = null;
 

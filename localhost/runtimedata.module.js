@@ -101,6 +101,13 @@ let f_write_file = null;
 
 let b_deno = typeof Deno !== 'undefined'
 let b_node = typeof process !== 'undefined' && process.versions && process.versions.node
+if(b_node){
+    const [n_major, n_minor, n_patch] = process.versions.node.split('.').map(Number)
+    let n_major_min = 16
+    if(n_major < n_major_min){
+        throw Error(`at least node ${n_major_min}.x.x is required`)
+    }
+}
 let b_bun = typeof Bun !== 'undefined'
 if(b_bun){
     console.log('F$#@ bun, its documentation is horrible...')
