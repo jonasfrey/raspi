@@ -30,11 +30,11 @@ let f_b_arrays_equal = function(
     return true
 }
 
-const f_b_pin_exported__from_n_gpio_number = async function(
-    n_gpio_number
+const f_b_pin_exported__from_o_pin = async function(
+    o_pin
 ){
     try {
-        let b_file_exists = f_b_path_exists(`${s_path_abs_folder_gpio}/gpio${n_gpio_number}`)
+        let b_file_exists = f_b_path_exists(`${s_path_abs_folder_gpio}/gpio${o_pin.v_n_gpio_number}`)
         return b_file_exists
     } catch (error) {
         //check for permission error
@@ -42,26 +42,33 @@ const f_b_pin_exported__from_n_gpio_number = async function(
         return false
     }
 }
-const f_pin_export__from_o_pin = async function(
+const f_pin_ensure_export__from_o_pin = async function(
     o_pin
 ){
 
-    // a pin has to be 'exported' to be able to write its 'direction' and 'state'
-    // a exported pin stays exported unless it is 'un-exported' or the system is rebooted
-    return f_write_text_file(
-        `${s_path_abs_folder_gpio}/export`, 
-        o_pin.v_n_gpio_number.toString()
-    )
+    let b_pin_exported = await f_b_pin_exported__from_o_pin(o_pin);
+    if(!b_pin_exported){
+        // a pin has to be 'exported' to be able to write its 'direction' and 'state'
+        // a exported pin stays exported unless it is 'un-exported' or the system is rebooted
+        return f_write_text_file(
+            `${s_path_abs_folder_gpio}/export`, 
+            o_pin.v_n_gpio_number.toString()
+        )
+    }
 }
-const f_pin_unexport__from_o_pin = async function(
+const f_pin_ensure_unexport__from_o_pin = async function(
     o_pin
 ){
-    // a pin has to be 'exported' to be able to write its 'direction' and 'state'
-    // a exported pin stays exported unless it is 'un-exported' or the system is rebooted
-    return f_write_text_file(
-        `${s_path_abs_folder_gpio}/unexport`, 
-        o_pin.v_n_gpio_number.toString()
-    )
+    let b_pin_exported = await f_b_pin_exported__from_o_pin(o_pin);
+    if(b_pin_exported){
+        // a pin has to be 'exported' to be able to write its 'direction' and 'state'
+        // a exported pin stays exported unless it is 'un-exported' or the system is rebooted
+        return f_write_text_file(
+            `${s_path_abs_folder_gpio}/unexport`, 
+            o_pin.v_n_gpio_number.toString()
+        )
+    }
+
 }
 const f_pin_set_direction__from_o_pin = async function(
     o_pin, 
@@ -185,13 +192,13 @@ let f_o_pin__from_o_raspi = async function(
         throw Error(`cannot find pin with gpio pin number ${n_gpio_number} on board ${o_raspi.s_name}, make sure to use the correct GPIO pin number: the board layout is the following ${f_s_pins_state_layout(o_raspi)}`);
     }
     
-    await f_pin_export__from_o_pin(o_pin);
+    await f_pin_ensure_export__from_o_pin(o_pin);
     await f_pin_set_direction__from_o_pin(o_pin, a_n_u8_pin_direction);
 
     return o_pin;
 }
 let f_uninit_from_o_pin = async function(o_pin){
-    await f_pin_unexport__from_o_pin(o_pin)
+    await f_pin_ensure_unexport__from_o_pin(o_pin)
 
     o_pin.s_pin_direction = null;
     await o_pin.o_file_descriptor__value.close()
@@ -200,9 +207,8 @@ let f_uninit_from_o_pin = async function(o_pin){
 export {
     
     f_b_arrays_equal,
-    f_b_pin_exported__from_n_gpio_number,
-    f_pin_export__from_o_pin,
-    f_pin_unexport__from_o_pin,
+    f_pin_ensure_export__from_o_pin,
+    f_pin_ensure_unexport__from_o_pin,
     f_pin_set_direction__from_o_pin,
     f_pin_set_state__from_o_pin,
     f_a_n_u8__pin_get_state__from_o_pin,
