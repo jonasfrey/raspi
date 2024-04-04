@@ -25,10 +25,10 @@ class O_pin{
         this.v_n_gpio_number = v_n_gpio_number
         this.s_direction = s_direction
         this.v_n_mics_wpn__last_write = null
-        this.v_n_mics_wpn__last_write_where_state_chaned = null
         this.v_n_mics_wpn__last_read = null
-        this.v_n_mics_wpn__last_read_where_state_chaned = null
         this.o_file_descriptor__value = null
+        this.v_a_n_u8_state = null;
+        this.n_state = null;
     }
 }
 

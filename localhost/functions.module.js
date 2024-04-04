@@ -102,29 +102,44 @@ const f_pin_set_state__from_o_pin = async function(
     o_pin, 
     a_n_u8_pin_state
 ){
-
+    o_pin.v_n_mics_wpn__last_write = performance.now()
+    o_pin.v_a_n_u8_state = a_n_u8_pin_state 
+    o_pin.n_state = (a_n_u8[0] == 49) ? 1 : 0;
+    // o_pin.n_state = (f_b_arrays_equal(a_n_u8, a_n_u8_pin_state_high) ? 1 : 0) 
     return o_pin.o_file_descriptor__value.write(
         a_n_u8_pin_state
     );
 }
-
+const f_pin_set_state__from_o_pin_only_if_state_changed = async function(
+    o_pin, 
+    a_n_u8_pin_state
+){
+    if(a_n_u8_pin_state[0] != o_pin.v_a_n_u8_state[0]){
+        return f_pin_set_state__from_o_pin(
+            o_pin,
+            a_n_u8_pin_state
+        )
+    }
+}
 
 const f_a_n_u8__pin_get_state__from_o_pin = async function(
     o_pin
 ){
-    let a_n_u8 = new Uint8Array(8)
+    o_pin.v_n_mics_wpn__last_read = performance.now()
+    let a_n_u8 = new Uint8Array(4)
     await o_pin.o_file_descriptor__value.read(
         a_n_u8
     );
     return a_n_u8
-
 }
 
 const f_n__pin_get_state__from_o_pin = async function(
     o_pin
 ){
     let a_n_u8 = await f_a_n_u8__pin_get_state__from_o_pin(o_pin);
-    return (f_b_arrays_equal(a_n_u8, a_n_u8_pin_state_high) ? 1 : 0) 
+    o_pin.n_state = (a_n_u8[0] == 49) ? 1 : 0;
+    // o_pin.n_state = (f_b_arrays_equal(a_n_u8, a_n_u8_pin_state_high) ? 1 : 0) 
+    return o_pin.n_state
 }
 
 
@@ -214,6 +229,7 @@ export {
     f_pin_ensure_unexport__from_o_pin,
     f_pin_set_direction__from_o_pin,
     f_pin_set_state__from_o_pin,
+    f_pin_set_state__from_o_pin_only_if_state_changed,
     f_a_n_u8__pin_get_state__from_o_pin,
     f_n__pin_get_state__from_o_pin,
     f_s_pins_state_layout,

@@ -1,6 +1,9 @@
 import {
     b_deno, 
-    b_node
+    b_node,
+    f_o_file_descriptor,
+    f_write_file,
+    f_write_text_file
 } from "./runtimedata.module.js"
 let f_display_test_selection_or_run_selected_test_and_print_summary = null;
 let f_o_test = null;
@@ -60,6 +63,7 @@ import {
   
     f_pin_set_direction__from_o_pin,
     f_pin_set_state__from_o_pin,
+    f_pin_set_state__from_o_pin_only_if_state_changed,
     f_a_n_u8__pin_get_state__from_o_pin,
     f_n__pin_get_state__from_o_pin,
     f_s_pins_state_layout,
@@ -110,7 +114,7 @@ let a_o_test = [
             );
 
             // it is highly recommend to un-init the pin before the programm ends
-            // await f_uninit_from_o_pin(o_pin__in)
+            await f_uninit_from_o_pin(o_pin__in)
             await f_uninit_from_o_pin(o_pin__out)
             // programm exists
 
@@ -190,44 +194,98 @@ let a_o_test = [
             let n_mic_sec_interval = 10000;
             let n_duty_nor = 0.95;
             let n_mic_sec_interval_duty = n_mic_sec_interval*n_duty_nor
-            let n_mic_sec_wpn = performance.now()*1000;
-            let b_state_low = 1
-            let b_state_low_last = 0
-            while(n < 10000000000){
+            let n_mic_sec_interval_nonduty = n_mic_sec_interval*(1.-n_duty_nor)
+            let n_mic_sec_delta_max = n_mic_sec_interval_duty;
+            while(n < 10000){
                 n_duty_nor = Math.sin(n*0.000001)*.5+.5;
                 n_mic_sec_interval_duty = n_mic_sec_interval*n_duty_nor
-                // console.log(n_duty_nor)
-                const n_mic_sec_wpn2 = performance.now()*1000;
-                const n_mic_sec_delta = n_mic_sec_wpn2 - n_mic_sec_wpn
-                // console.log({n_mic_sec_delta})
-                b_state_low = n_mic_sec_delta < (n_mic_sec_interval_duty);
-            
-                if(b_state_low != b_state_low_last){
+                n_mic_sec_interval_nonduty = n_mic_sec_interval*(1.-n_duty_nor)
+                
+                if(o_pin__out2.n_state == 1){
+                    n_mic_sec_delta_max = n_mic_sec_interval_duty;
+                }else{
+                    n_mic_sec_delta_max = n_mic_sec_interval_nonduty;
+                }
+                const n_mic_sec_delta = performance.now()*1000 - o_pin__out2.v_n_mics_wpn__last_write
+                
+                if(n_mic_sec_delta > n_mic_sec_delta_max){
                     await f_pin_set_state__from_o_pin(
                         o_pin__out2,
-                        (b_state_low) 
+                        (o_pin__out2.n_state == 0) 
                          ? a_n_u8_pin_state_high
                          : a_n_u8_pin_state_low
                     );
-                    await f_pin_set_state__from_o_pin(
-                        o_pin__out3,
-                        (b_state_low) 
-                         ? a_n_u8_pin_state_low
-                         : a_n_u8_pin_state_high
-                    );
-                b_state_low_last = b_state_low
                 }
-                if(n_mic_sec_delta >(n_mic_sec_interval)){
-                n_mic_sec_wpn = n_mic_sec_wpn2
-                }
+
                 n+=1;
             
             }
-  
+            await f_uninit_from_o_pin(o_pin__out2)
+            await f_uninit_from_o_pin(o_pin__out3)
+
             //./readme.md:end
 
         }
     ),
+    f_o_test(
+        'compare_speeds', 
+        async function(){
+
+            let n_wpn = null;
+            let n_wpn_delta = null;
+
+
+            console.log(`this script was run with ${(b_deno) ? '"deno js"':''} ${(b_node) ? '"node js"':''}`)
+            let s_text = '1'
+            // this is the slowest way 
+            n_wpn = performance.now()
+            await f_write_text_file('./test_io', s_text);
+            n_wpn_delta = performance.now()-n_wpn
+            console.log({s: 'writeTextFile',n_wpn_delta})
+            // { s: "writeTextFile", n_wpn_delta: 0.5136779999999987 } on my machine
+
+            // a bit faster 
+            let a_n_u8_content = new TextEncoder().encode(s_text);
+            n_wpn = performance.now()
+            await f_write_file('./test_io', a_n_u8_content);
+            n_wpn_delta = performance.now()-n_wpn
+            console.log({s: 'writeFile',n_wpn_delta})
+            //{ s: "writeTextFile", n_wpn_delta: 0.23671600000000126 }
+
+
+            // the fastest
+            // beforehand 
+            let o_file_descriptor = await f_o_file_descriptor('./test_io', { write: true });
+            n_wpn = performance.now()
+            await o_file_descriptor.write(a_n_u8_content);
+            n_wpn_delta = performance.now()-n_wpn
+            console.log({s: 'o_file_descriptor.write',n_wpn_delta})
+            await o_file_descriptor.close()
+
+            let o_file_descriptor_read = await f_o_file_descriptor('./test_io', { read: true });
+            n_wpn = performance.now()
+            let a_n_u8_read = new Uint8Array(8)
+            await o_file_descriptor_read.read(a_n_u8_read);
+
+            n_wpn_delta = performance.now()-n_wpn
+            console.log({s: 'o_file_descriptor.write',n_wpn_delta, a_n_u8_read})
+            await o_file_descriptor_read.close()
+
+
+            // test results 
+            // node js
+            // this script was run with  "node js"
+            // { s: 'writeTextFile', n_wpn_delta: 0.3502999544143677 }
+            // { s: 'writeFile', n_wpn_delta: 0.07189500331878662 }
+            // { s: 'o_file_descriptor.write', n_wpn_delta: 0.039875030517578125 }
+
+            // deno js
+            // this script was run with "deno js"
+            // { s: "writeTextFile", n_wpn_delta: 0.5923770000000008 }
+            // { s: "writeFile", n_wpn_delta: 0.1569250000000011 }
+            // { s: "o_file_descriptor.write", n_wpn_delta: 0.0833970000000015 }
+        }
+    )
 ]
 
 
