@@ -52,12 +52,12 @@ import {
     o_raspi__v1,
     o_raspi__v2,
     a_n_u8_pin_direction_in,
-
     a_n_u8_pin_direction_out,
+    a_n_u8_pin_state_high,
+    a_n_u8_pin_state_low,
     f_b_arrays_equal,
-    f_b_pin_exported__from_n_gpio_number,
-    f_pin_export__from_o_pin,
-    f_pin_unexport__from_o_pin,
+   
+  
     f_pin_set_direction__from_o_pin,
     f_pin_set_state__from_o_pin,
     f_a_n_u8__pin_get_state__from_o_pin,
@@ -94,14 +94,19 @@ let a_o_test = [
                 3, 
                 a_n_u8_pin_direction_out 
             );
-            // this function will check if the state has changed and only write to the pin if the state has changed
+            let n = 0;
+            while(n < 10){
+                n+=1
+                await f_pin_set_state__from_o_pin(
+                    o_pin__out,
+                    (n % 2 == 0) ? a_n_u8_pin_state_high : a_n_u8_pin_state_low // write 'high' / n_pin_state_high / 1
+                );
+                await new Promise((f_res)=>{setTimeout(()=>{return f_res(true)}, 100)})
+            }
+
             await f_pin_set_state__from_o_pin(
                 o_pin__out,
-                1 // write 'high' / n_pin_state_high / 1
-            );
-            await f_pin_set_state__from_o_pin(
-                o_pin__out,
-                0 // write 'low' / n_pin_state_low / 0
+                a_n_u8_pin_state_low // write 'low' / n_pin_state_low / 0
             );
 
             // it is highly recommend to un-init the pin before the programm ends

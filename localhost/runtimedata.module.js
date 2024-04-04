@@ -166,8 +166,8 @@ if(b_node){
             write: async function(v_buffer) {
                 return o_fs.writeSync(o_fd, v_buffer, 0, v_buffer.length)//, position, callback)
             },
-            close: function() {
-                return o_fd.close();
+            close: async function() {
+                return o_fs.closeSync(o_fd);
             }
         };
         return o_fd_denolike

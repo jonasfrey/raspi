@@ -111,10 +111,11 @@ const f_pin_set_state__from_o_pin = async function(
 const f_a_n_u8__pin_get_state__from_o_pin = async function(
     o_pin
 ){
-
-    return o_pin.o_file_descriptor__value.read(
-        o_pin.o_file_descriptor__value
+    let a_n_u8 = new Uint8Array(8)
+    await o_pin.o_file_descriptor__value.read(
+        a_n_u8
     );
+    return a_n_u8
 
 }
 
