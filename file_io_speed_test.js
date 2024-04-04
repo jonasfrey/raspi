@@ -35,6 +35,14 @@ await o_file_descriptor.write(a_n_u8_content);
 n_wpn_delta = performance.now()-n_wpn
 console.log({s: 'o_file_descriptor.write',n_wpn_delta})
 
+let o_file_descriptor_read = await f_o_file_descriptor('./test_io', { read: true });
+n_wpn = performance.now()
+let a_n_u8_read = new Uint8Array(8)
+await o_file_descriptor_read.read(a_n_u8_read);
+
+n_wpn_delta = performance.now()-n_wpn
+console.log({s: 'o_file_descriptor.write',n_wpn_delta, a_n_u8_read})
+
 
 // test results 
 // node js
