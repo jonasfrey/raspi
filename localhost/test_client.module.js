@@ -196,7 +196,7 @@ let a_o_test = [
             let n_mic_sec_interval_duty = n_mic_sec_interval*n_duty_nor
             let n_mic_sec_interval_nonduty = n_mic_sec_interval*(1.-n_duty_nor)
             let n_mic_sec_delta_max = n_mic_sec_interval_duty;
-            while(n < 10000){
+            while(n < 100000000){
                 n_duty_nor = Math.sin(n*0.000001)*.5+.5;
                 n_mic_sec_interval_duty = n_mic_sec_interval*n_duty_nor
                 n_mic_sec_interval_nonduty = n_mic_sec_interval*(1.-n_duty_nor)
@@ -207,13 +207,19 @@ let a_o_test = [
                     n_mic_sec_delta_max = n_mic_sec_interval_nonduty;
                 }
                 const n_mic_sec_delta = performance.now()*1000 - o_pin__out2.v_n_mics_wpn__last_write
-                
+                //console.log(n_mic_sec_delta)
                 if(n_mic_sec_delta > n_mic_sec_delta_max){
                     await f_pin_set_state__from_o_pin(
                         o_pin__out2,
                         (o_pin__out2.n_state == 0) 
                          ? a_n_u8_pin_state_high
                          : a_n_u8_pin_state_low
+                    );
+                    await f_pin_set_state__from_o_pin(
+                        o_pin__out3,
+                        (o_pin__out3.n_state == 1) 
+                         ? a_n_u8_pin_state_low
+                         : a_n_u8_pin_state_high
                     );
                 }
 
