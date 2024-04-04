@@ -33,9 +33,9 @@ let o_raspi__v1 = new O_raspi(
     [
         new O_pin("3v3 power", 1, null), 
         new O_pin("5v power", 2, null),
-        new O_pin("GPIO 0 (SDA)", 3, 0),
+        new O_pin("GPIO 0 (SDA)", 3, 0), // Revision 1 uses GPIO 0 here
         new O_pin("5v power", 4, null),
-        new O_pin("GPIO 1 (SCL)", 5, 1),
+        new O_pin("GPIO 1 (SCL)", 5, 1), // Revision 1 uses GPIO 1 here
         new O_pin("Ground", 6, null),
         new O_pin("GPIO 4 (GPCLK0)", 7, 4),
         new O_pin("GPIO 14 (TXD)", 8, 14),
@@ -43,18 +43,18 @@ let o_raspi__v1 = new O_raspi(
         new O_pin("GPIO 15 (RXD)", 10, 15),
         new O_pin("GPIO 17", 11, 17),
         new O_pin("GPIO 18 (PCM_CLK)", 12, 18),
-        new O_pin("3v3 power", 13, null),
-        new O_pin("Ground", 14, null),
-        new O_pin("GPIO 21", 15, 21),
+        new O_pin("GPIO 21", 13, 21),
+        new O_pin("Ground", 14, null), // Revision 1 uses GPIO 21 here
+        new O_pin("GPIO 22", 15, 22),
         new O_pin("GPIO 23", 16, 23),
-        new O_pin("GPIO 22", 17, 22),
-        new O_pin("Ground", 18, null),
-        new O_pin("GPIO 10 (MOSI)", 19, 10),
+        new O_pin("3v3 Power", 17, null),
+        new O_pin("GPIO 24", 18, 24),
+        new O_pin("GPIO 10", 19, 10),
         new O_pin("Ground", 20, null),
         new O_pin("GPIO 9 (MISO)", 21, 9),
         new O_pin("GPIO 25", 22, 25),
         new O_pin("GPIO 11 (SCLK)", 23, 11),
-        new O_pin("GPIO 8 (CEO)", 24, 8),
+        new O_pin("GPIO 8 (CE0)", 24, 8),
         new O_pin("Ground", 25, null),
         new O_pin("GPIO 7 (CE1)", 26, 7)
     ]
@@ -75,12 +75,12 @@ let o_raspi__v2 = new O_raspi(
         new O_pin("GPIO 15 (RXD)", 10, 15),
         new O_pin("GPIO 17", 11, 17),
         new O_pin("GPIO 18 (PCM_CLK)", 12, 18),
-        new O_pin("3v3 power", 13, null),
+        new O_pin("GPIO 27", 13, 27),
         new O_pin("Ground", 14, null),
-        new O_pin("GPIO 27", 15, 27),
+        new O_pin("GPIO 22", 15, 22),
         new O_pin("GPIO 23", 16, 23),
-        new O_pin("GPIO 22", 17, 22),
-        new O_pin("Ground", 18, null),
+        new O_pin("3v3 power", 17,null),
+        new O_pin("GPIO 24", 18, 24),
         new O_pin("GPIO 10 (MOSI)", 19, 10),
         new O_pin("Ground", 20, null),
         new O_pin("GPIO 9 (MISO)", 21, 9),
@@ -88,7 +88,21 @@ let o_raspi__v2 = new O_raspi(
         new O_pin("GPIO 11 (SCLK)", 23, 11),
         new O_pin("GPIO 8 (CEO)", 24, 8),
         new O_pin("Ground", 25, null),
-        new O_pin("GPIO 7 (CE1)", 26, 7)
+        new O_pin("GPIO 7 (CE1)", 26, 7), 
+        new O_pin("GPIO 0 (ID_SD)", 27, 0),
+        new O_pin("GPIO 1 (ID_SD)", 28, 1),
+        new O_pin("GPIO 5", 29, 5),
+        new O_pin("Ground", 30, null),
+        new O_pin("GPIO 6", 31, 6),
+        new O_pin("GPIO 12 (PWM0)", 32, 12),
+        new O_pin("GPIO 13 (PWM1)", 33, 13),
+        new O_pin("Ground", 34, null),
+        new O_pin("GPIO 19 (PCM_FS)", 35, 19),
+        new O_pin("GPIO 16", 36, 16),
+        new O_pin("GPIO 26", 37, 26),
+        new O_pin("GPIO 20 (PCM_DIN)", 38, 20),
+        new O_pin("Ground", 39, null),
+        new O_pin("GPIO 21 (PCM_DOUT)", 40, 21)
     ]
 )
 
