@@ -146,7 +146,7 @@ const f_n__pin_get_state__from_o_pin = async function(
 let f_s_pins_state_layout = function(
     o_raspi
 ){
-    let n_width_col = 21
+    let n_width_col = 22
 
     let o_s_direction_or_state_s_char = {
         direction_in : '>',
@@ -159,10 +159,10 @@ let f_s_pins_state_layout = function(
 
     let o_date = new Date()
     let s = `${o_date.toString()}.${o_date.getMilliseconds()}`
-
+    let s_bar = `|${'-'.repeat(n_width_col)}|${'-'.repeat(n_width_col)}|`
     return [
         `raspi ${o_raspi.s_name}: ${s}`,
-        `|${'-'.repeat(n_width_col)}|${'-'.repeat(n_width_col)}|`,
+        s_bar,
         new Array(o_raspi.a_o_pin.length/2).fill(0).map((n, n_idx)=>{
             let a_o_pin = [
                 o_raspi.a_o_pin[n_idx*2],
@@ -178,7 +178,8 @@ let f_s_pins_state_layout = function(
                 ].join(' ')
                 return s.padEnd(n_width_col, ' ')
             }).join('|')}|`
-        }).join('\n')
+        }).join('\n'), 
+        s_bar
     ].join('\r\n')
     // | P1-01:type   | P1-02:type   |
     // raspi v2: Mon Apr 01 2024 19:11:04 GMT+0200 (Central European Summer Time).897

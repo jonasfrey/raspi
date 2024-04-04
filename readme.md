@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Thu Apr 04 2024 15:08:59 GMT+0200 (Central European Summer Time)","n_ts_created":1712236139550} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Fri Apr 05 2024 01:34:20 GMT+0200 (Central European Summer Time)","n_ts_created":1712273660380} -->
 ![./logo.png](./logo.png)
 # Raspi
 ### import the stuff
@@ -100,39 +100,48 @@ from "./mod.js"
 returns the raspberry pi pins layout and it current states
 - not exported ,< in , > out, ■ 1, □ 0
 ```javascript
-            console.log(f_s_pins_state_layout(o_raspi__v2))
-            // raspi v2: Mon Apr 01 2024 19:11:04 GMT+0200 (Central European Summer Time).897
-            // |---------------------|---------------------|
-            // |-   3v3 power        |-   5v power         |
-            // |> ■ GPIO 2 (SDA)     |-   5v power         |
-            // |< □ GPIO 3 (SCL)     |-   Ground           |
-            // |-   GPIO 4 (GPCLK0)  |-   GPIO 14 (TXD)    |
-            // |-   Ground           |-   GPIO 15 (RXD)    |
-            // |-   GPIO 17          |-   GPIO 18 (PCM_CLK)|
-            // |-   3v3 power        |-   Ground           |
-            // |-   GPIO 27          |-   GPIO 23          |
-            // |-   GPIO 22          |-   Ground           |
-            // |-   GPIO 10 (MOSI)   |-   Ground           |
-            // |-   GPIO 9 (MISO)    |-   GPIO 25          |
-            // |-   GPIO 11 (SCLK)   |-   GPIO 8 (CEO)     |
-            // |-   Ground           |-   GPIO 7 (CE1)     |
-
             console.log(f_s_pins_state_layout(o_raspi__v1))
-            // raspi v1: Tue Apr 02 2024 14:02:03 GMT+0200 (Central European Summer Time).815
-            // |---------------------|---------------------|
-            // |-   3v3 power        |-   5v power         |
-            // |-   GPIO 0 (SDA)     |-   5v power         |
-            // |-   GPIO 1 (SCL)     |-   Ground           |
-            // |-   GPIO 4 (GPCLK0)  |-   GPIO 14 (TXD)    |
-            // |-   Ground           |-   GPIO 15 (RXD)    |
-            // |-   GPIO 17          |-   GPIO 18 (PCM_CLK)|
-            // |-   3v3 power        |-   Ground           |
-            // |-   GPIO 21          |-   GPIO 23          |
-            // |-   GPIO 22          |-   Ground           |
-            // |-   GPIO 10 (MOSI)   |-   Ground           |
-            // |-   GPIO 9 (MISO)    |-   GPIO 25          |
-            // |-   GPIO 11 (SCLK)   |-   GPIO 8 (CEO)     |
-            // |-   Ground           |-   GPIO 7 (CE1)     |
+            // raspi v1: Fri Apr 05 2024 01:31:24 GMT+0200 (Central European Summer Time).514
+            // |----------------------|----------------------|
+            // |_   3v3 power         |_   5v power          |
+            // |_   GPIO 0 (SDA)      |_   5v power          |
+            // |_   GPIO 1 (SCL)      |_   Ground            |
+            // |_   GPIO 4 (GPCLK0)   |_   GPIO 14 (TXD)     |
+            // |_   Ground            |_   GPIO 15 (RXD)     |
+            // |_   GPIO 17           |_   GPIO 18 (PCM_CLK) |
+            // |_   GPIO 21           |_   Ground            |
+            // |_   GPIO 22           |_   GPIO 23           |
+            // |_   3v3 Power         |_   GPIO 24           |
+            // |_   GPIO 10           |_   Ground            |
+            // |_   GPIO 9 (MISO)     |_   GPIO 25           |
+            // |_   GPIO 11 (SCLK)    |_   GPIO 8 (CE0)      |
+            // |_   Ground            |_   GPIO 7 (CE1)      |
+            // |----------------------|----------------------|
+
+            console.log(f_s_pins_state_layout(o_raspi__v2))
+            // raspi v2: Fri Apr 05 2024 01:31:58 GMT+0200 (Central European Summer Time).980
+            // |----------------------|----------------------|
+            // |_   3v3 power         |_   5v power          |
+            // |_   GPIO 2 (SDA)      |_   5v power          |
+            // |_   GPIO 3 (SCL)      |_   Ground            |
+            // |_   GPIO 4 (GPCLK0)   |_   GPIO 14 (TXD)     |
+            // |_   Ground            |_   GPIO 15 (RXD)     |
+            // |_   GPIO 17           |_   GPIO 18 (PCM_CLK) |
+            // |_   GPIO 27           |_   Ground            |
+            // |_   GPIO 22           |_   GPIO 23           |
+            // |_   3v3 power         |_   GPIO 24           |
+            // |_   GPIO 10 (MOSI)    |_   Ground            |
+            // |_   GPIO 9 (MISO)     |_   GPIO 25           |
+            // |_   GPIO 11 (SCLK)    |_   GPIO 8 (CEO)      |
+            // |_   Ground            |_   GPIO 7 (CE1)      |
+            // |_   GPIO 0 (ID_SD)    |_   GPIO 1 (ID_SD)    |
+            // |_   GPIO 5            |_   Ground            |
+            // |_   GPIO 6            |_   GPIO 12 (PWM0)    |
+            // |_   GPIO 13 (PWM1)    |_   Ground            |
+            // |_   GPIO 19 (PCM_FS)  |_   GPIO 16           |
+            // |_   GPIO 26           |_   GPIO 20 (PCM_DIN) |
+            // |_   Ground            |_   GPIO 21 (PCM_DOUT)|
+            // |----------------------|----------------------|
 
 ```
 ## example blink
