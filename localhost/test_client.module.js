@@ -82,41 +82,60 @@ let a_o_test = [
         'auto', 
         async ()=>{
             //./readme.md:start
-            //md: ## read a pin
-            let o_pin__in = await f_o_pin__from_o_raspi(
+            //md: ## get a pin reference
+            let o_pin__2 = await f_o_pin__from_o_raspi(
                 o_raspi__v2, // from import {o_raspi__v2...} from ".../mod.js"
                 2, // gpio pin number
                 a_n_u8_pin_direction_in // 'in' or 'out', default default is 'in'
             );
+            //md: ## read 
             let n_state = await f_n__pin_get_state__from_o_pin(
-                o_pin__in
-            ) // returns 1 or 0
+                o_pin__2
+            )
+            console.log(n_state) // 1 or 0
+            console.log(o_pin__2.n_state) // 1 or 0 
+            console.log(o_pin__2.v_n_mic_sec_wpn__last_read) // 1444064.188 (performance.now()*1000) //microseconds since script start 
 
-            //md: ## write a pin
-            let o_pin__out = await f_o_pin__from_o_raspi(
-                o_raspi__v2,
-                3, 
-                a_n_u8_pin_direction_out 
+            
+            //md: ## set direction
+            // to out
+            await f_pin_set_direction__from_o_pin(
+                o_pin__2, 
+                a_n_u8_pin_direction_out
             );
-            let n = 0;
-            while(n < 10){
-                n+=1
-                await f_pin_set_state__from_o_pin(
-                    o_pin__out,
-                    (n % 2 == 0) ? a_n_u8_pin_state_high : a_n_u8_pin_state_low // write 'high' / n_pin_state_high / 1
-                );
-                await new Promise((f_res)=>{setTimeout(()=>{return f_res(true)}, 100)})
-            }
-
+            //md: ## write 
             await f_pin_set_state__from_o_pin(
-                o_pin__out,
-                a_n_u8_pin_state_low // write 'low' / n_pin_state_low / 0
+                o_pin__2,
+                (true)
+                    ? a_n_u8_pin_state_high // write 1
+                    : a_n_u8_pin_state_low // write 0
             );
+            console.log(o_pin__2.n_state) // 1
+            console.log(o_pin__2.v_n_mic_sec_wpn__last_read) //  1444064.188 (performance.now()*1000) //microseconds since script start 
+            console.log(o_pin__2.v_n_mic_sec_wpn__last_write) // 1893212.299 (performance.now()*1000) //microseconds since script start 
+            //md: ## write  (only if state has changed)
 
+            // will write 1
+            await f_pin_set_state__from_o_pin_only_if_state_changed(
+                o_pin__2, a_n_u8_pin_state_high
+            );
+            // will not write 1 since last state was also 1, 
+            await f_pin_set_state__from_o_pin_only_if_state_changed(
+                o_pin__2, a_n_u8_pin_state_high
+            );
+            // will not write 1 since last state was also 1, 
+            await f_pin_set_state__from_o_pin_only_if_state_changed(
+                o_pin__2, a_n_u8_pin_state_high
+            );
+            // will not write 0 
+            await f_pin_set_state__from_o_pin_only_if_state_changed(
+                o_pin__2, a_n_u8_pin_state_low
+            );
+        
+
+            //md: ## un-initialize
             // it is highly recommend to un-init the pin before the programm ends
-            await f_uninit_from_o_pin(o_pin__in)
-            await f_uninit_from_o_pin(o_pin__out)
-            // programm exists
+            await f_uninit_from_o_pin(o_pin__2)
 
             //./readme.md:end
         }
@@ -168,11 +187,35 @@ let a_o_test = [
         }
     ),
     f_o_test(
-        'pwm_digial_pulse_width_modulation', 
+        'example_blink', 
+        async ()=>{
+            //./readme.md:start
+            //md: ## example blink
+            let o_pin__2 = await f_o_pin__from_o_raspi(
+                o_raspi__v2, 
+                2, 
+                a_n_u8_pin_direction_out
+            );
+            let n = 0;
+            while(n < 10){
+                n+=1
+                await f_pin_set_state__from_o_pin(
+                    o_pin__2,
+                    (n % 2 == 0) ? a_n_u8_pin_state_high : a_n_u8_pin_state_low // write 'high' / n_pin_state_high / 1
+                );
+                // wait 500 ms
+                await new Promise((f_res)=>{setTimeout(()=>{return f_res(true)}, 500)})
+            }
+            //./readme.md:end
+
+        }
+    ),
+    f_o_test(
+        'example_pwm_digial_pulse_width_modulation', 
         async ()=>{
             //./readme.md:start
             
-            //md: ## pulse width modulation test
+            //md: ## example PWM (pulse width modulation)
             //md: this shows that a digital pulsewidth modulation is possible 
             //md: pwm pulse width modulation is a technique where 
             //md: the state changes quickly from low to high / 0 to 1
@@ -206,7 +249,9 @@ let a_o_test = [
                 }else{
                     n_mic_sec_delta_max = n_mic_sec_interval_nonduty;
                 }
-                const n_mic_sec_delta = performance.now()*1000 - o_pin__out2.v_n_mics_wpn__last_write
+                // we make use of the property 'v_n_mic_sec_wpn__last_write' which holds a 
+                // microseconds timestamp (wpn=>window.performance.now) time since script has started
+                const n_mic_sec_delta = performance.now()*1000 - o_pin__out2.v_n_mic_sec_wpn__last_write
                 //console.log(n_mic_sec_delta)
                 if(n_mic_sec_delta > n_mic_sec_delta_max){
                     await f_pin_set_state__from_o_pin(
