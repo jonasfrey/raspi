@@ -28,7 +28,7 @@ class O_pin{
         this.v_n_mics_wpn__last_write_where_state_chaned = null
         this.v_n_mics_wpn__last_read = null
         this.v_n_mics_wpn__last_read_where_state_chaned = null
-        this.o_file_descriptor_value = null
+        this.o_file_descriptor__value = null
     }
 }
 

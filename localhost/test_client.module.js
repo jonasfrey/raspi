@@ -22,25 +22,20 @@ import {
     // v1 and v2 have different layouts
     o_raspi__v1,
     o_raspi__v2,
-    s_pin_direction_in,
-    s_pin_direction_out,
-    // functions
-    // used to retrieve and initialize a pin 
-    f_o_pin__from_o_raspi,
-    // used to get the layout 
-    f_s_pins_state_layout, 
-    // used to get /set state of a pin
-    f_n__pin_get_state__from_o_pin,
-    f_pin_set_state__from_o_pin,
-    // used to un-init pins
-    f_uninit_from_o_pin,
-    // 'raw' functions
+    a_n_u8_pin_direction_in,
+    a_n_u8_pin_direction_out,
+    f_b_arrays_equal,
     f_b_pin_exported__from_n_gpio_number,
-    f_pin_export__from_n_gpio_number,
-    f_pin_set_direction__from_n_gpio_number,
-    f_pin_set_state__from_n_gpio_number,
-    f_n__pin_get_state__from_n_gpio_number, 
-    f_pin_unexport__from_n_gpio_number,
+    f_pin_export__from_o_pin,
+    f_pin_unexport__from_o_pin,
+    f_pin_set_direction__from_o_pin,
+    f_pin_set_state__from_o_pin,
+    f_a_n_u8__pin_get_state__from_o_pin,
+    f_n__pin_get_state__from_o_pin,
+    f_s_pins_state_layout,
+    f_o_pin__from_o_raspi,
+    f_uninit_from_o_pin
+
 
 } 
 from "./mod.js"
@@ -57,7 +52,7 @@ let a_o_test = [
             let o_pin__in = await f_o_pin__from_o_raspi(
                 o_raspi__v2, // from import {o_raspi__v2...} from ".../mod.js"
                 2, // gpio pin number
-                s_pin_direction_in // 'in' or 'out', default default is 'in'
+                a_n_u8_pin_direction_in // 'in' or 'out', default default is 'in'
             );
             let n_state = await f_n__pin_get_state__from_o_pin(
                 o_pin__in
@@ -67,7 +62,7 @@ let a_o_test = [
             let o_pin__out = await f_o_pin__from_o_raspi(
                 o_raspi__v2,
                 3, 
-                s_pin_direction_out 
+                a_n_u8_pin_direction_out 
             );
             // this function will check if the state has changed and only write to the pin if the state has changed
             await f_pin_set_state__from_o_pin(
@@ -83,40 +78,6 @@ let a_o_test = [
             await f_uninit_from_o_pin(o_pin__in)
             await f_uninit_from_o_pin(o_pin__out)
             // programm exists
-
-            //./readme.md:end
-        }
-    ),
-    f_o_test(
-        'manually', 
-        async ()=>{
-            //./readme.md:start
-            //md: ## 'manually' handle pins
-            //md: this might be faster due to less overhead
-            //md: but you have to keep track of pin states yourself
-            let n_gpio_number = 2;
-            // check if pin is exported
-            let b_exported = await f_b_pin_exported__from_n_gpio_number(n_gpio_number);
-            if(!b_exported){
-                // if not exported you have to export the pin
-                await f_pin_export__from_n_gpio_number(n_gpio_number)
-            }
-            // set direction 
-            await f_pin_set_direction__from_n_gpio_number(n_gpio_number, s_pin_direction_out);
-
-            // write high 
-            f_pin_set_state__from_n_gpio_number(n_gpio_number, 1)
-            // write low
-            f_pin_set_state__from_n_gpio_number(n_gpio_number, 0)
-            
-            // set direction 'in' for reading the pin 
-            await f_pin_set_direction__from_n_gpio_number(n_gpio_number, s_pin_direction_in);
-
-            let n = f_n__pin_get_state__from_n_gpio_number(n_gpio_number);
-            console.log(n)//0            
-
-            // at the end it is highly recommended to unexport the pin
-            await f_pin_unexport__from_n_gpio_number(n_gpio_number);
 
             //./readme.md:end
         }

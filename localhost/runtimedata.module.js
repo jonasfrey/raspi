@@ -8,10 +8,16 @@ import {
 } from "./classes.module.js"
 
 const s_path_abs_folder_gpio = '/sys/class/gpio';
-const s_pin_direction_in   = 'in';
-const s_pin_direction_out  = 'out';
-const n_pin_state_low  = 0;
-const n_pin_state_high = 1;
+let o_text_encoder = new TextEncoder();
+let o_text_decoder = new TextDecoder();
+const s_pin_direction_in   = ('in');
+const s_pin_direction_out  = ('out');
+const s_pin_state_low  = ('0');
+const s_pin_state_high = ('1');
+const a_n_u8_pin_direction_in   = o_text_encoder.encode(s_pin_direction_in);
+const a_n_u8_pin_direction_out  = o_text_encoder.encode(s_pin_direction_out);
+const a_n_u8_pin_state_low  = o_text_encoder.encode(s_pin_state_low);
+const a_n_u8_pin_state_high = o_text_encoder.encode(s_pin_state_high);
 
 var MODE_RPI = 'mode_rpi';
 var MODE_BCM = 'mode_bcm';
@@ -20,7 +26,6 @@ var EDGE_NONE    = 'none';
 var EDGE_RISING  = 'rising';
 var EDGE_FALLING = 'falling';
 var EDGE_BOTH    = 'both';
-
 
 
 let o_raspi__v1 = new O_raspi(
@@ -92,10 +97,14 @@ let f_b_path_exists = null;
 let f_write_text_file = null;
 let f_read_text_file = null;
 let f_o_file_descriptor = null;
+let f_write_file = null;
 
 let b_deno = typeof Deno !== 'undefined'
 let b_node = typeof process !== 'undefined' && process.versions && process.versions.node
 let b_bun = typeof Bun !== 'undefined'
+if(b_bun){
+    console.log('F$#@ bun, its documentation is horrible...')
+}
 
 
 let n_uid = null;
@@ -113,6 +122,8 @@ if(b_deno){
     }
     f_write_text_file = Deno.writeTextFile
     f_read_text_file = Deno.readTextFile
+    f_write_file = Deno.writeFile
+    f_o_file_descriptor = Deno.open
 }
 if(b_node){
     const os = await import('os');
@@ -128,24 +139,58 @@ if(b_node){
     ){
         return o_fs.existsSync(s_path_file)
     }
-    f_o_file_descriptor = o_fs.openSync;
+    f_o_file_descriptor = async function(
+        s_path, 
+        o_options
+    ){
+        // Convert Deno-style options to Node.js-style flags
+        let s_flags = 'r'; // Default to read mode
+        if (o_options.write && o_options.append) {
+            s_flags = 'a'; // Append mode
+        } else if (o_options.write && o_options.truncate) {
+            s_flags = 'w'; // Write mode, truncate
+        } else if (o_options.write) {
+            s_flags = o_options.createNew ? 'wx' : 'w'; // Exclusive write mode
+        } else if (o_options.append) {
+            s_flags = 'a'; // Append mode
+        } // Add more conditions as needed based on Deno's options
+
+        // Open the file with the determined flags and return a Promise for consistency with Deno
+        const o_fd = await o_fs.openSync(s_path, s_flags, o_options.mode);
+        // Wrap the file descriptor in an object to mimic Deno's file handle
+        const o_fd_denolike = {
+            read: async function(v_buffer) {
+                return o_fs.readSync(o_fd, v_buffer, 0, v_buffer.length)//, position, callback)
+                // return await o_fd.read(v_buffer, 0, v_buffer.length);
+            },
+            write: async function(v_buffer) {
+                return o_fs.writeSync(o_fd, v_buffer, 0, v_buffer.length)//, position, callback)
+            },
+            close: function() {
+                return o_fd.close();
+            }
+        };
+        return o_fd_denolike
+    }
 
     f_write_text_file = o_fs.writeFileSync//(path,content);
     f_read_text_file = o_fs.readFileSync;//('/Users/joe/test.txt', 'utf8');
+    f_write_file = o_fs.writeFileSync
 }
-if(b_bun){
-    try {
-        n_uid = parseInt(Bun.spawnSync("id", ["-u"]).stdout);
-    } catch (error) {
-        console.error('Could not get UID:', error);
-    }
-    f_b_path_exists = async function(
-        s_path_file
-    ){
-        const file = Bun.file(s_path_file+'/value');
-        return await file.exists(); // boolean;
-    }
-}
+// if(b_bun){
+// fuck bun, its documentation is horrible 
+//     try {
+//         n_uid = parseInt(Bun.spawnSync("id", ["-u"]).stdout);
+//     } catch (error) {
+//         console.error('Could not get UID:', error);
+//     }
+//     f_b_path_exists = async function(
+//         s_path_file
+//     ){
+//         const file = Bun.file(s_path_file+'/value');
+//         return await file.exists(); // boolean;
+//     }
+// }
 
 
 export {
@@ -154,15 +199,21 @@ export {
     s_path_abs_folder_gpio,
     s_pin_direction_in,
     s_pin_direction_out,
-    n_pin_state_low,
-    n_pin_state_high,
+    s_pin_state_low,
+    s_pin_state_high,
+    a_n_u8_pin_direction_in,
+    a_n_u8_pin_direction_out,
+    a_n_u8_pin_state_low,
+    a_n_u8_pin_state_high,
     b_deno,
     b_node,
-    b_bun,
     f_b_path_exists,
+    f_write_file,
     f_write_text_file,
     f_read_text_file, 
     n_uid, 
     f_o_file_descriptor,
-    o_fs
+    o_fs,
+    o_text_encoder,
+    o_text_decoder
 }

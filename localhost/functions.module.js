@@ -1,14 +1,34 @@
 
 import { 
     s_path_abs_folder_gpio,
-    s_pin_direction_in,
+    a_n_u8_pin_direction_in,
     f_b_path_exists, 
     f_read_text_file, 
     f_write_text_file,
     f_o_file_descriptor,
-    o_fs
+    o_fs,
+    f_write_file,
+    a_n_u8_pin_direction_out,
+    a_n_u8_pin_state_high,
+    o_text_decoder
 } from "./runtimedata.module.js";
 
+let f_b_arrays_equal = function(
+    a_n_u8_1,
+    a_n_u8_2
+){
+    if(a_n_u8_1.length != a_n_u8_2.length){
+        return false
+    }
+    for(let n = 0; n < a_n_u8_1.length; n+=1){
+        if(
+            a_n_u8_1[n] != a_n_u8_2[n]
+        ){
+            return false
+        }
+    }
+    return true
+}
 
 const f_b_pin_exported__from_n_gpio_number = async function(
     n_gpio_number
@@ -22,87 +42,82 @@ const f_b_pin_exported__from_n_gpio_number = async function(
         return false
     }
 }
-const f_pin_export__from_n_gpio_number = async function(
-    n_gpio_number
+const f_pin_export__from_o_pin = async function(
+    o_pin
 ){
+
     // a pin has to be 'exported' to be able to write its 'direction' and 'state'
     // a exported pin stays exported unless it is 'un-exported' or the system is rebooted
     return f_write_text_file(
         `${s_path_abs_folder_gpio}/export`, 
-        n_gpio_number.toString()
+        o_pin.n_gpio_number.toString()
     )
 }
-const f_pin_unexport__from_n_gpio_number = async function(
-    n_gpio_number
+const f_pin_unexport__from_o_pin = async function(
+    o_pin
 ){
     // a pin has to be 'exported' to be able to write its 'direction' and 'state'
     // a exported pin stays exported unless it is 'un-exported' or the system is rebooted
     return f_write_text_file(
         `${s_path_abs_folder_gpio}/unexport`, 
-        n_gpio_number.toString()
+        o_pin.n_gpio_number.toString()
     )
 }
-const f_pin_set_direction__from_n_gpio_number = async function(
-    n_gpio_number, 
-    s_pin_direction
+const f_pin_set_direction__from_o_pin = async function(
+    o_pin, 
+    a_n_u8_pin_direction
 ){
-    return f_write_text_file(
-        `${s_path_abs_folder_gpio}/gpio${n_gpio_number}/direction`, 
-        s_pin_direction
-    )
-}
-const f_pin_set_state__from_n_gpio_number = async function(
-    n_gpio_number, 
-    n_state
-){
+    o_pin.s_direction = o_text_decoder.decode(a_n_u8_pin_direction);
 
-    return f_write_text_file(
-        `${s_path_abs_folder_gpio}/gpio${n_gpio_number}/value`, 
-        n_state.toString()
+    if(o_pin.o_file_descriptor__value){
+        await o_pin.o_file_descriptor__value.close()
+    }
+    if(f_b_arrays_equal(a_n_u8_pin_direction, a_n_u8_pin_direction_in)){
+        o_pin.o_file_descriptor__value = await f_o_file_descriptor(
+            `${s_path_abs_folder_gpio}/gpio${o_pin.n_gpio_number}/value`,
+            { read: true} 
+        )
+    }
+    if(f_b_arrays_equal(a_n_u8_pin_direction, a_n_u8_pin_direction_out)){
+        o_pin.o_file_descriptor__value = await f_o_file_descriptor(
+            `${s_path_abs_folder_gpio}/gpio${o_pin.n_gpio_number}/value`,
+            { write: true} 
+        )
+    }
+    return f_write_file(
+        `${s_path_abs_folder_gpio}/gpio${o_pin.n_gpio_number}/direction`,
+        a_n_u8_pin_direction
     )
-}
-const f_n__pin_get_state__from_n_gpio_number = async function(
-    n_gpio_number, 
-){
-    const s = f_read_text_file(
-        `${s_path_abs_folder_gpio}/gpio${n_gpio_number}/value`,    
-    )
-    return parseInt(s)
 }
 
 const f_pin_set_state__from_o_pin = async function(
     o_pin, 
-    n_state
+    a_n_u8_pin_state
 ){
-    // o_pin has to be exported at this point
-    // o_pin has to have a direction at this point
-    o_pin.v_n_mics_wpn__last_write = performance.now()
-        
-    // if(n_state != o_pin.n_state){
-        // only write to pin if state has changed
-        o_pin.v_n_mics_wpn__last_write_where_state_chaned = performance.now()
-        o_pin.n_state = n_state
-        
-        // o_fs.writeSync(o_pin.o_file_descriptor_value, Buffer.from(n_state.toString()), 0, 1, 0);
-        return o_fs.writeSync(o_pin.o_file_descriptor_value, Buffer.from(n_state.toString()), 0, 1, 0);
-        // return f_pin_set_state__from_n_gpio_number(
-        //     o_pin.v_n_gpio_number, 
-        //     n_state
-        // )
-    // }
+
+    return o_pin.o_file_descriptor__value.write(
+        a_n_u8_pin_state
+    );
 }
+
+
+const f_a_n_u8__pin_get_state__from_o_pin = async function(
+    o_pin
+){
+
+    return o_pin.o_file_descriptor__value.read(
+        o_pin.o_file_descriptor__value
+    );
+
+}
+
 const f_n__pin_get_state__from_o_pin = async function(
     o_pin
 ){
-    // o_pin has to be exported at this point
-    // o_pin has to have a direction at this point
-    let n_state = f_n__pin_get_state__from_n_gpio_number(o_pin.v_n_gpio_number)
-    o_pin.v_n_mics_wpn__last_read = performance.now()    
-    if(n_state != o_pin.n_state){
-        o_pin.v_n_mics_wpn__last_read_where_state_chaned = performance.now()
-    }
-    return n_state
+    let a_n_u8 = await f_a_n_u8__pin_get_state__from_o_pin(o_pin);
+    return (f_b_arrays_equal(a_n_u8, a_n_u8_pin_state_high) ? 1 : 0) 
 }
+
 
 let f_s_pins_state_layout = function(
     o_raspi
@@ -162,42 +177,36 @@ let f_s_pins_state_layout = function(
 let f_o_pin__from_o_raspi = async function(
     o_raspi, 
     n_gpio_number, 
-    s_pin_direction = s_pin_direction_in
+    a_n_u8_pin_direction = a_n_u8_pin_direction_in
 ){
     let o_pin = o_raspi.a_o_pin.find(o=>o.v_n_gpio_number == n_gpio_number);
     if(!o_pin){
         throw Error(`cannot find pin with gpio pin number ${n_gpio_number} on board ${o_raspi.s_name}, make sure to use the correct GPIO pin number: the board layout is the following ${f_s_pins_state_layout(o_raspi)}`);
     }
+    
+    await f_pin_export__from_o_pin(o_pin);
+    await f_pin_set_direction__from_o_pin(o_pin, a_n_u8_pin_direction);
 
-    let b_exported = await f_b_pin_exported__from_n_gpio_number(n_gpio_number);
-    if(!b_exported){
-        await f_pin_export__from_n_gpio_number(n_gpio_number);
-    }
-    o_pin.o_file_descriptor_value = await f_o_file_descriptor(
-        `${s_path_abs_folder_gpio}/gpio${n_gpio_number}/value`, 
-        'r+'
-    );
-    await f_pin_set_direction__from_n_gpio_number(n_gpio_number, s_pin_direction);
-    o_pin.s_direction = s_pin_direction
     return o_pin;
 }
 let f_uninit_from_o_pin = async function(o_pin){
-    if(await f_b_pin_exported__from_n_gpio_number(o_pin.n_gpio_number)){
-        await f_pin_unexport__from_n_gpio_number(o_pin.n_gpio_number)
-    }
+    await f_pin_unexport__from_o_pin(o_pin)
+
     o_pin.s_pin_direction = null;
+    await o_pin.o_file_descriptor__value.close()
 }
 
 export {
+    
+    f_b_arrays_equal,
     f_b_pin_exported__from_n_gpio_number,
-    f_pin_export__from_n_gpio_number,
-    f_pin_unexport__from_n_gpio_number,
-    f_pin_set_direction__from_n_gpio_number,
-    f_pin_set_state__from_n_gpio_number,
-    f_n__pin_get_state__from_n_gpio_number, 
+    f_pin_export__from_o_pin,
+    f_pin_unexport__from_o_pin,
+    f_pin_set_direction__from_o_pin,
     f_pin_set_state__from_o_pin,
+    f_a_n_u8__pin_get_state__from_o_pin,
     f_n__pin_get_state__from_o_pin,
-    f_s_pins_state_layout, 
+    f_s_pins_state_layout,
     f_o_pin__from_o_raspi,
     f_uninit_from_o_pin
 }
