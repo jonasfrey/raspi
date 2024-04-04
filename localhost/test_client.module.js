@@ -111,7 +111,7 @@ let a_o_test = [
 
             // it is highly recommend to un-init the pin before the programm ends
             // await f_uninit_from_o_pin(o_pin__in)
-            // await f_uninit_from_o_pin(o_pin__out)
+            await f_uninit_from_o_pin(o_pin__out)
             // programm exists
 
             //./readme.md:end

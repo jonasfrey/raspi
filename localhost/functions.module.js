@@ -78,6 +78,7 @@ const f_pin_set_direction__from_o_pin = async function(
 
     if(o_pin.o_file_descriptor__value){
         await o_pin.o_file_descriptor__value.close()
+        o_pin.o_file_descriptor__value = null
     }
     if(f_b_arrays_equal(a_n_u8_pin_direction, a_n_u8_pin_direction_in)){
         o_pin.o_file_descriptor__value = await f_o_file_descriptor(
@@ -200,9 +201,10 @@ let f_o_pin__from_o_raspi = async function(
 }
 let f_uninit_from_o_pin = async function(o_pin){
     await f_pin_ensure_unexport__from_o_pin(o_pin)
-
     o_pin.s_pin_direction = null;
     await o_pin.o_file_descriptor__value.close()
+    o_pin.o_file_descriptor__value = null
+
 }
 
 export {
