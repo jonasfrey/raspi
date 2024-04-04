@@ -84,9 +84,9 @@ let a_o_test = [
             //./readme.md:start
             //md: ## get a pin reference
             let o_pin__2 = await f_o_pin__from_o_raspi(
-                o_raspi__v2, // from import {o_raspi__v2...} from ".../mod.js"
-                2, // gpio pin number
-                a_n_u8_pin_direction_in // 'in' or 'out', default default is 'in'
+                o_raspi__v2, 
+                2, // GPIO pin number
+                a_n_u8_pin_direction_in // or a_n_u8_pin_direction_out 
             );
             //md: ## read 
             let n_state = await f_n__pin_get_state__from_o_pin(
@@ -220,7 +220,7 @@ let a_o_test = [
             //md: pwm pulse width modulation is a technique where 
             //md: the state changes quickly from low to high / 0 to 1
             //md: depending on how much time the pin is high the brightness of an led changes
-            //md: this example should show the pin changing from dark to bright in a 
+            //md: <br> this example should show the pin changing from dark to bright in a 
             //md: sinusial wave
             let o_pin__out2 = await f_o_pin__from_o_raspi(
                 o_raspi__v2,

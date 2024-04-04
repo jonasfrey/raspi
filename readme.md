@@ -1,4 +1,4 @@
-<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Thu Apr 04 2024 14:45:55 GMT+0200 (Central European Summer Time)","n_ts_created":1712234755927} -->
+<!-- {"s_msg":"this file was automatically generated","s_by":"f_generate_markdown.module.js","s_ts_created":"Thu Apr 04 2024 15:08:59 GMT+0200 (Central European Summer Time)","n_ts_created":1712236139550} -->
 ![./logo.png](./logo.png)
 # Raspi
 ### import the stuff
@@ -29,44 +29,70 @@ import {
 from "./mod.js"
 // from "https://deno.land/x/raspi@[n.n.n]/mod.js"
 ```
-## read a pin
+## get a pin reference
 ```javascript
-            let o_pin__in = await f_o_pin__from_o_raspi(
-                o_raspi__v2, // from import {o_raspi__v2...} from ".../mod.js"
-                2, // gpio pin number
-                a_n_u8_pin_direction_in // 'in' or 'out', default default is 'in'
+            let o_pin__2 = await f_o_pin__from_o_raspi(
+                o_raspi__v2, 
+                2, // GPIO pin number
+                a_n_u8_pin_direction_in // or a_n_u8_pin_direction_out 
             );
+```
+## read
+```javascript
             let n_state = await f_n__pin_get_state__from_o_pin(
-                o_pin__in
-            ) // returns 1 or 0
+                o_pin__2
+            )
+            console.log(n_state) // 1 or 0
+            console.log(o_pin__2.n_state) // 1 or 0 
+            console.log(o_pin__2.v_n_mic_sec_wpn__last_read) // 1444064.188 (performance.now()*1000) //microseconds since script start 
+
+            
+```
+## set direction
+```javascript
+            // to out
+            await f_pin_set_direction__from_o_pin(
+                o_pin__2, 
+                a_n_u8_pin_direction_out
+            );
+```
+## write
+```javascript
+            await f_pin_set_state__from_o_pin(
+                o_pin__2,
+                (true)
+                    ? a_n_u8_pin_state_high // write 1
+                    : a_n_u8_pin_state_low // write 0
+            );
+            console.log(o_pin__2.n_state) // 1
+            console.log(o_pin__2.v_n_mic_sec_wpn__last_read) //  1444064.188 (performance.now()*1000) //microseconds since script start 
+            console.log(o_pin__2.v_n_mic_sec_wpn__last_write) // 1893212.299 (performance.now()*1000) //microseconds since script start 
+```
+## write  (only if state has changed)
+```javascript
+            // will write 1
+            await f_pin_set_state__from_o_pin_only_if_state_changed(
+                o_pin__2, a_n_u8_pin_state_high
+            );
+            // will not write 1 since last state was also 1, 
+            await f_pin_set_state__from_o_pin_only_if_state_changed(
+                o_pin__2, a_n_u8_pin_state_high
+            );
+            // will not write 1 since last state was also 1, 
+            await f_pin_set_state__from_o_pin_only_if_state_changed(
+                o_pin__2, a_n_u8_pin_state_high
+            );
+            // will not write 0 
+            await f_pin_set_state__from_o_pin_only_if_state_changed(
+                o_pin__2, a_n_u8_pin_state_low
+            );
+        
 
 ```
-## write a pin
+## un-initialize
 ```javascript
-            let o_pin__out = await f_o_pin__from_o_raspi(
-                o_raspi__v2,
-                3, 
-                a_n_u8_pin_direction_out 
-            );
-            let n = 0;
-            while(n < 10){
-                n+=1
-                await f_pin_set_state__from_o_pin(
-                    o_pin__out,
-                    (n % 2 == 0) ? a_n_u8_pin_state_high : a_n_u8_pin_state_low // write 'high' / n_pin_state_high / 1
-                );
-                await new Promise((f_res)=>{setTimeout(()=>{return f_res(true)}, 100)})
-            }
-
-            await f_pin_set_state__from_o_pin(
-                o_pin__out,
-                a_n_u8_pin_state_low // write 'low' / n_pin_state_low / 0
-            );
-
             // it is highly recommend to un-init the pin before the programm ends
-            await f_uninit_from_o_pin(o_pin__in)
-            await f_uninit_from_o_pin(o_pin__out)
-            // programm exists
+            await f_uninit_from_o_pin(o_pin__2)
 
             
 ```
@@ -108,14 +134,32 @@ returns the raspberry pi pins layout and it current states
             // |-   GPIO 11 (SCLK)   |-   GPIO 8 (CEO)     |
             // |-   Ground           |-   GPIO 7 (CE1)     |
 
+```
+## example blink
+```javascript
+            let o_pin__2 = await f_o_pin__from_o_raspi(
+                o_raspi__v2, 
+                2, 
+                a_n_u8_pin_direction_out
+            );
+            let n = 0;
+            while(n < 10){
+                n+=1
+                await f_pin_set_state__from_o_pin(
+                    o_pin__2,
+                    (n % 2 == 0) ? a_n_u8_pin_state_high : a_n_u8_pin_state_low // write 'high' / n_pin_state_high / 1
+                );
+                // wait 500 ms
+                await new Promise((f_res)=>{setTimeout(()=>{return f_res(true)}, 500)})
+            }
             
 ```
-## pulse width modulation test
+## example PWM (pulse width modulation)
 this shows that a digital pulsewidth modulation is possible
 pwm pulse width modulation is a technique where
 the state changes quickly from low to high / 0 to 1
 depending on how much time the pin is high the brightness of an led changes
-this example should show the pin changing from dark to bright in a
+<br> this example should show the pin changing from dark to bright in a
 sinusial wave
 ```javascript
             let o_pin__out2 = await f_o_pin__from_o_raspi(
@@ -145,7 +189,9 @@ sinusial wave
                 }else{
                     n_mic_sec_delta_max = n_mic_sec_interval_nonduty;
                 }
-                const n_mic_sec_delta = performance.now()*1000 - o_pin__out2.v_n_mics_wpn__last_write
+                // we make use of the property 'v_n_mic_sec_wpn__last_write' which holds a 
+                // microseconds timestamp (wpn=>window.performance.now) time since script has started
+                const n_mic_sec_delta = performance.now()*1000 - o_pin__out2.v_n_mic_sec_wpn__last_write
                 //console.log(n_mic_sec_delta)
                 if(n_mic_sec_delta > n_mic_sec_delta_max){
                     await f_pin_set_state__from_o_pin(
