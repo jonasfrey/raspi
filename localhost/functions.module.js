@@ -50,7 +50,7 @@ const f_pin_export__from_o_pin = async function(
     // a exported pin stays exported unless it is 'un-exported' or the system is rebooted
     return f_write_text_file(
         `${s_path_abs_folder_gpio}/export`, 
-        o_pin.n_gpio_number.toString()
+        o_pin.v_n_gpio_number.toString()
     )
 }
 const f_pin_unexport__from_o_pin = async function(
@@ -60,7 +60,7 @@ const f_pin_unexport__from_o_pin = async function(
     // a exported pin stays exported unless it is 'un-exported' or the system is rebooted
     return f_write_text_file(
         `${s_path_abs_folder_gpio}/unexport`, 
-        o_pin.n_gpio_number.toString()
+        o_pin.v_n_gpio_number.toString()
     )
 }
 const f_pin_set_direction__from_o_pin = async function(
@@ -74,18 +74,18 @@ const f_pin_set_direction__from_o_pin = async function(
     }
     if(f_b_arrays_equal(a_n_u8_pin_direction, a_n_u8_pin_direction_in)){
         o_pin.o_file_descriptor__value = await f_o_file_descriptor(
-            `${s_path_abs_folder_gpio}/gpio${o_pin.n_gpio_number}/value`,
+            `${s_path_abs_folder_gpio}/gpio${o_pin.v_n_gpio_number}/value`,
             { read: true} 
         )
     }
     if(f_b_arrays_equal(a_n_u8_pin_direction, a_n_u8_pin_direction_out)){
         o_pin.o_file_descriptor__value = await f_o_file_descriptor(
-            `${s_path_abs_folder_gpio}/gpio${o_pin.n_gpio_number}/value`,
+            `${s_path_abs_folder_gpio}/gpio${o_pin.v_n_gpio_number}/value`,
             { write: true} 
         )
     }
     return f_write_file(
-        `${s_path_abs_folder_gpio}/gpio${o_pin.n_gpio_number}/direction`,
+        `${s_path_abs_folder_gpio}/gpio${o_pin.v_n_gpio_number}/direction`,
         a_n_u8_pin_direction
     )
 }
@@ -180,6 +180,7 @@ let f_o_pin__from_o_raspi = async function(
     a_n_u8_pin_direction = a_n_u8_pin_direction_in
 ){
     let o_pin = o_raspi.a_o_pin.find(o=>o.v_n_gpio_number == n_gpio_number);
+
     if(!o_pin){
         throw Error(`cannot find pin with gpio pin number ${n_gpio_number} on board ${o_raspi.s_name}, make sure to use the correct GPIO pin number: the board layout is the following ${f_s_pins_state_layout(o_raspi)}`);
     }

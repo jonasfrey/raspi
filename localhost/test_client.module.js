@@ -1,8 +1,37 @@
 import {
-    f_display_test_selection_or_run_selected_test_and_print_summary,
-    f_o_test, 
-    f_assert_equals
-} from "https://deno.land/x/deno_test_server_and_client_side@1.3/mod.js"
+    b_deno, 
+    b_node
+} from "./runtimedata.module.js"
+let f_display_test_selection_or_run_selected_test_and_print_summary = null;
+let f_o_test = null;
+let f_assert_equals = null;
+if(b_deno){
+    let o_mod = await import("https://deno.land/x/deno_test_server_and_client_side@1.3/mod.js");
+    f_display_test_selection_or_run_selected_test_and_print_summary = o_mod.f_display_test_selection_or_run_selected_test_and_print_summary
+    f_o_test = o_mod.f_o_test
+    f_assert_equals = o_mod.f_assert_equals
+}
+if(b_node){
+    f_o_test = (s_name, f_func)=>{
+        return {
+            s_name: s_name, 
+            f_func: f_func
+        }
+    }
+
+    f_display_test_selection_or_run_selected_test_and_print_summary = async function(a_o_test){
+        for(let o of a_o_test){
+            console.log(`running test ${o.s_name}`)
+            await o.f_func();
+        }
+    }
+    f_assert_equals = (v_a,v_b)=>{
+        if(v_a!==v_b){
+            throw Error(`a:${v_a} does not equal b${v_b}`)
+        }
+    }
+}
+
 
 //./readme.md:start
 //md: ![./logo.png](./logo.png)
@@ -23,6 +52,7 @@ import {
     o_raspi__v1,
     o_raspi__v2,
     a_n_u8_pin_direction_in,
+
     a_n_u8_pin_direction_out,
     f_b_arrays_equal,
     f_b_pin_exported__from_n_gpio_number,
