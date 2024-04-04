@@ -110,8 +110,8 @@ let a_o_test = [
             );
 
             // it is highly recommend to un-init the pin before the programm ends
-            await f_uninit_from_o_pin(o_pin__in)
-            await f_uninit_from_o_pin(o_pin__out)
+            // await f_uninit_from_o_pin(o_pin__in)
+            // await f_uninit_from_o_pin(o_pin__out)
             // programm exists
 
             //./readme.md:end
@@ -159,6 +159,71 @@ let a_o_test = [
             // |-   GPIO 11 (SCLK)   |-   GPIO 8 (CEO)     |
             // |-   Ground           |-   GPIO 7 (CE1)     |
 
+            //./readme.md:end
+
+        }
+    ),
+    f_o_test(
+        'pwm_digial_pulse_width_modulation', 
+        async ()=>{
+            //./readme.md:start
+            
+            //md: ## pulse width modulation test
+            //md: this shows that a digital pulsewidth modulation is possible 
+            //md: pwm pulse width modulation is a technique where 
+            //md: the state changes quickly from low to high / 0 to 1
+            //md: depending on how much time the pin is high the brightness of an led changes
+            //md: this example should show the pin changing from dark to bright in a 
+            //md: sinusial wave
+            let o_pin__out2 = await f_o_pin__from_o_raspi(
+                o_raspi__v2,
+                2, 
+                a_n_u8_pin_direction_out 
+            );
+            let o_pin__out3 = await f_o_pin__from_o_raspi(
+                o_raspi__v2,
+                3, 
+                a_n_u8_pin_direction_out 
+            );
+            // test pulse width modulation 
+            let n = 0;
+            let n_mic_sec_interval = 10000;
+            let n_duty_nor = 0.95;
+            let n_mic_sec_interval_duty = n_mic_sec_interval*n_duty_nor
+            let n_mic_sec_wpn = performance.now()*1000;
+            let b_state_low = 1
+            let b_state_low_last = 0
+            while(n < 10000000000){
+                n_duty_nor = Math.sin(n*0.000001)*.5+.5;
+                n_mic_sec_interval_duty = n_mic_sec_interval*n_duty_nor
+                // console.log(n_duty_nor)
+                const n_mic_sec_wpn2 = performance.now()*1000;
+                const n_mic_sec_delta = n_mic_sec_wpn2 - n_mic_sec_wpn
+                // console.log({n_mic_sec_delta})
+                b_state_low = n_mic_sec_delta < (n_mic_sec_interval_duty);
+            
+                if(b_state_low != b_state_low_last){
+                    await f_pin_set_state__from_o_pin(
+                        o_pin__out2,
+                        (b_state_low) 
+                         ? a_n_u8_pin_state_high
+                         : a_n_u8_pin_state_low
+                    );
+                    await f_pin_set_state__from_o_pin(
+                        o_pin__out3,
+                        (b_state_low) 
+                         ? a_n_u8_pin_state_low
+                         : a_n_u8_pin_state_high
+                    );
+                b_state_low_last = b_state_low
+                }
+                if(n_mic_sec_delta >(n_mic_sec_interval)){
+                n_mic_sec_wpn = n_mic_sec_wpn2
+                }
+                n+=1;
+            
+            }
+  
             //./readme.md:end
 
         }
